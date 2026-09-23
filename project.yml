@@ -1,0 +1,45 @@
+# XcodeGen 工程描述文件（可选，用于一键生成 .xcodeproj）
+# 用法：
+#   brew install xcodegen
+#   cd DaiDaiJi && xcodegen generate
+# 若不想装 XcodeGen，也可按 README 手动在 Xcode 里建工程后拖入源码。
+name: DaiDaiJi
+options:
+  bundleIdPrefix: com.daidaiji
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.9"
+    GENERATE_INFOPLIST_FILE: YES
+
+targets:
+  DaiDaiJi:
+    type: application
+    platform: iOS
+    sources:
+      - path: .
+        excludes:
+          - "README.md"
+          - "project.yml"
+          - "*.xcodeproj"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.daidaiji.app
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_CFBundleDisplayName: 袋袋集
+        INFOPLIST_KEY_NSCameraUsageDescription: "需要使用相机拍摄纸袋照片"
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "需要访问相册选择纸袋照片"
+        # 竖屏为主：布局按 393pt 宽的竖屏写死（主卡 308、货架 110×N），
+        # 允许横屏会让主卡与挂袋的尺寸推导失准。
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
+        # iPad 允许横竖屏，但布局仍会以容器宽度自适应
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: NO

@@ -1,0 +1,38 @@
+# ── macOS ──
+.DS_Store
+._*
+
+# ── Xcode：个人设置，不应进仓库 ──
+# 这些是「你这台机器上的窗口布局 / 上次打开的文件 / 断点」，
+# 进仓库只会导致无意义的冲突。
+xcuserdata/
+*.xcuserdatad/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# ── 构建产物 ──
+build/
+DerivedData/
+*.o
+*.swiftmodule
+*.xcarchive
+
+# ── Swift Package Manager ──
+.build/
+.swiftpm/
+Package.resolved
+
+# ── CocoaPods / Carthage（本项目未用，留着防以后引入）──
+Pods/
+Carthage/Build/
+
+# ── ⚠️ 以下**不要**忽略（写在这里是为了提醒）──
+# DaiDaiJi.xcodeproj/         ← 必须进仓库，否则 clone 下来没法打开
+#   └── xcshareddata/         ← 里面的 .xcscheme 必须进，否则没有运行目标
+# Assets.xcassets/            ← 必须进
+# project.yml                 ← 必须进（装 XcodeGen 时可重新生成工程）

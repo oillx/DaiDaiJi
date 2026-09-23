@@ -1,0 +1,425 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		096900933DE2A0C0DEE98E6B /* HeroCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7B43883DE27F4C90BA4596A /* HeroCardView.swift */; };
+		12C07A737CCE81D7DD0025A3 /* ThumbnailImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13A3E549D6DDF5CB2917165 /* ThumbnailImage.swift */; };
+		1B6C73683C321D0B350B55A7 /* CategoryMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F76347ACD34FAFF9F373CE /* CategoryMatcher.swift */; };
+		1CB983C1E4086E7DC1B81B22 /* ThumbnailCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA427CC41ECE76B364ED6409 /* ThumbnailCache.swift */; };
+		1DD74040F51C163790EE024E /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038F8C3FC1FB81801FFB8C73 /* PreviewData.swift */; };
+		20EAFD22CC7CF824D88FD93A /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50852CFDFCFD50F24D979C1 /* ImageStore.swift */; };
+		446F9548EDBDF9845DABB578 /* DaiDaiJiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBA2FDEBF96250EAF9FEAD4A /* DaiDaiJiApp.swift */; };
+		756E47A3301C4C485A1F8556 /* BagDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB44809DEC3708BF12DF8636 /* BagDetailView.swift */; };
+		794212FC1D35D73FAD7F0D3A /* AddBagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CD9705A5B4D1A3C2A7B4749 /* AddBagView.swift */; };
+		A1B2C3D4E5F67890AABBCCDD /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF00112233445566778899 /* SettingsSheet.swift */; };
+		EEFF001122334455667788AA /* AppLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788AB /* AppLayout.swift */; };
+		EEFF001122334455667788AC /* ShakeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788AD /* ShakeDetector.swift */; };
+		EEFF001122334455667788AE /* LayoutGlyph.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788AF /* LayoutGlyph.swift */; };
+		A510A2381288AB4350FD2FF2 /* CameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BE2E8B9FB870120500A81C1 /* CameraController.swift */; };
+		A6070B9CF28E71610AA267AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A790BB479B2477E3A634A1EB /* Assets.xcassets */; };
+		AC2C5329B82EEF6AE775109D /* BagItemSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A318CF65C72F887BA24BF0D /* BagItemSchema.swift */; };
+		ACDAE23E68E53FD339A911A1 /* BagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40254144160552FA30A321E /* BagCell.swift */; };
+		D3A411C4B0DE000000000002 /* DetailCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3A411C4B0DE000000000001 /* DetailCardView.swift */; };
+		D3D80EAD13E95E7330C10A5C /* RackSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 594E4876610CB1E82851D5ED /* RackSection.swift */; };
+		DED7E4566B5C5B75C5192666 /* BagItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2843415D480861D92B6C49C /* BagItem.swift */; };
+		E1DA43250B927A1EB38E2FD6 /* BagImagePipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B3824FCFFE7AEE5B46F93E /* BagImagePipeline.swift */; };
+		E6B1AC1951D07312ABBBC774 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEFABA6DBE0FD3F9E947CCE6 /* CameraView.swift */; };
+		F28D08E42C96548A8A75D396 /* ShelfView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505CA48FD5A0398D40CDEB61 /* ShelfView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		038F8C3FC1FB81801FFB8C73 /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		1A318CF65C72F887BA24BF0D /* BagItemSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BagItemSchema.swift; sourceTree = "<group>"; };
+		3BE2E8B9FB870120500A81C1 /* CameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraController.swift; sourceTree = "<group>"; };
+		505CA48FD5A0398D40CDEB61 /* ShelfView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShelfView.swift; sourceTree = "<group>"; };
+		594E4876610CB1E82851D5ED /* RackSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RackSection.swift; sourceTree = "<group>"; };
+		5CD9705A5B4D1A3C2A7B4749 /* AddBagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBagView.swift; sourceTree = "<group>"; };
+		63B3824FCFFE7AEE5B46F93E /* BagImagePipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BagImagePipeline.swift; sourceTree = "<group>"; };
+		65F76347ACD34FAFF9F373CE /* CategoryMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryMatcher.swift; sourceTree = "<group>"; };
+		A50852CFDFCFD50F24D979C1 /* ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStore.swift; sourceTree = "<group>"; };
+		A790BB479B2477E3A634A1EB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B7B43883DE27F4C90BA4596A /* HeroCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroCardView.swift; sourceTree = "<group>"; };
+		C13A3E549D6DDF5CB2917165 /* ThumbnailImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailImage.swift; sourceTree = "<group>"; };
+		C40254144160552FA30A321E /* BagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BagCell.swift; sourceTree = "<group>"; };
+		D3A411C4B0DE000000000001 /* DetailCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailCardView.swift; sourceTree = "<group>"; };
+		D91517BFBDECE389497A425B /* DaiDaiJi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DaiDaiJi.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA427CC41ECE76B364ED6409 /* ThumbnailCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailCache.swift; sourceTree = "<group>"; };
+		E2843415D480861D92B6C49C /* BagItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BagItem.swift; sourceTree = "<group>"; };
+		EBA2FDEBF96250EAF9FEAD4A /* DaiDaiJiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaiDaiJiApp.swift; sourceTree = "<group>"; };
+		EEFF00112233445566778899 /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
+		EEFF001122334455667788AB /* AppLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLayout.swift; sourceTree = "<group>"; };
+		EEFF001122334455667788AD /* ShakeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetector.swift; sourceTree = "<group>"; };
+		EEFF001122334455667788AF /* LayoutGlyph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutGlyph.swift; sourceTree = "<group>"; };
+		FB44809DEC3708BF12DF8636 /* BagDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BagDetailView.swift; sourceTree = "<group>"; };
+		FEFABA6DBE0FD3F9E947CCE6 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		89F62AD5A37E60A8E46ACAA8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2B731CEFC6751AAE0EC69B98 = {
+			isa = PBXGroup;
+			children = (
+				A1C86A29E589D48EC70B6A32 /* Models */,
+				F7ED0AE08FBB92027261B793 /* Support */,
+				38DF21AEF4612506D6BE5CBE /* Views */,
+				EBA2FDEBF96250EAF9FEAD4A /* DaiDaiJiApp.swift */,
+				A790BB479B2477E3A634A1EB /* Assets.xcassets */,
+				86024CAD1E83101D97359D73 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		38DF21AEF4612506D6BE5CBE /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5CD9705A5B4D1A3C2A7B4749 /* AddBagView.swift */,
+				C40254144160552FA30A321E /* BagCell.swift */,
+				FB44809DEC3708BF12DF8636 /* BagDetailView.swift */,
+				D3A411C4B0DE000000000001 /* DetailCardView.swift */,
+				FEFABA6DBE0FD3F9E947CCE6 /* CameraView.swift */,
+				505CA48FD5A0398D40CDEB61 /* ShelfView.swift */,
+				B7B43883DE27F4C90BA4596A /* HeroCardView.swift */,
+				594E4876610CB1E82851D5ED /* RackSection.swift */,
+				C13A3E549D6DDF5CB2917165 /* ThumbnailImage.swift */,
+				EEFF00112233445566778899 /* SettingsSheet.swift */,
+				EEFF001122334455667788AF /* LayoutGlyph.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		86024CAD1E83101D97359D73 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D91517BFBDECE389497A425B /* DaiDaiJi.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1C86A29E589D48EC70B6A32 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E2843415D480861D92B6C49C /* BagItem.swift */,
+				1A318CF65C72F887BA24BF0D /* BagItemSchema.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		F7ED0AE08FBB92027261B793 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				63B3824FCFFE7AEE5B46F93E /* BagImagePipeline.swift */,
+				3BE2E8B9FB870120500A81C1 /* CameraController.swift */,
+				65F76347ACD34FAFF9F373CE /* CategoryMatcher.swift */,
+				A50852CFDFCFD50F24D979C1 /* ImageStore.swift */,
+				EEFF001122334455667788AB /* AppLayout.swift */,
+				EEFF001122334455667788AD /* ShakeDetector.swift */,
+				038F8C3FC1FB81801FFB8C73 /* PreviewData.swift */,
+				DA427CC41ECE76B364ED6409 /* ThumbnailCache.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		42AEFBAE01D2DFD981F7DA7D /* DaiDaiJi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C892833D335B0F40CD5A5FAB /* Build configuration list for PBXNativeTarget "DaiDaiJi" */;
+			buildPhases = (
+				0F78FE532035D122ED352DBA /* Sources */,
+				89F62AD5A37E60A8E46ACAA8 /* Frameworks */,
+				943E4BBD9B51C81965501BA3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DaiDaiJi;
+			productName = DaiDaiJi;
+			productReference = D91517BFBDECE389497A425B /* DaiDaiJi.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		46F86FAA6BBF9AC94A7E4595 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 2660;
+				TargetAttributes = {
+					42AEFBAE01D2DFD981F7DA7D = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 5CF8C997E0150571D04AA034 /* Build configuration list for PBXProject "DaiDaiJi" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2B731CEFC6751AAE0EC69B98;
+			productRefGroup = 86024CAD1E83101D97359D73 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				42AEFBAE01D2DFD981F7DA7D /* DaiDaiJi */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		943E4BBD9B51C81965501BA3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6070B9CF28E71610AA267AE /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0F78FE532035D122ED352DBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				446F9548EDBDF9845DABB578 /* DaiDaiJiApp.swift in Sources */,
+				DED7E4566B5C5B75C5192666 /* BagItem.swift in Sources */,
+				AC2C5329B82EEF6AE775109D /* BagItemSchema.swift in Sources */,
+				E1DA43250B927A1EB38E2FD6 /* BagImagePipeline.swift in Sources */,
+				A510A2381288AB4350FD2FF2 /* CameraController.swift in Sources */,
+				1B6C73683C321D0B350B55A7 /* CategoryMatcher.swift in Sources */,
+				20EAFD22CC7CF824D88FD93A /* ImageStore.swift in Sources */,
+				EEFF001122334455667788AA /* AppLayout.swift in Sources */,
+				EEFF001122334455667788AC /* ShakeDetector.swift in Sources */,
+				1DD74040F51C163790EE024E /* PreviewData.swift in Sources */,
+				1CB983C1E4086E7DC1B81B22 /* ThumbnailCache.swift in Sources */,
+				794212FC1D35D73FAD7F0D3A /* AddBagView.swift in Sources */,
+				ACDAE23E68E53FD339A911A1 /* BagCell.swift in Sources */,
+				756E47A3301C4C485A1F8556 /* BagDetailView.swift in Sources */,
+				D3A411C4B0DE000000000002 /* DetailCardView.swift in Sources */,
+				E6B1AC1951D07312ABBBC774 /* CameraView.swift in Sources */,
+				F28D08E42C96548A8A75D396 /* ShelfView.swift in Sources */,
+				096900933DE2A0C0DEE98E6B /* HeroCardView.swift in Sources */,
+				D3D80EAD13E95E7330C10A5C /* RackSection.swift in Sources */,
+				12C07A737CCE81D7DD0025A3 /* ThumbnailImage.swift in Sources */,
+				A1B2C3D4E5F67890AABBCCDD /* SettingsSheet.swift in Sources */,
+				EEFF001122334455667788AE /* LayoutGlyph.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0C2C64FD5ECC0D76BBDAF8DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "袋袋集";
+				INFOPLIST_KEY_NSCameraUsageDescription = "需要使用相机拍摄纸袋照片";
+				/* 摇一摇要读设备运动数据。虽然 CMMotionManager 通常不弹权限框，
+				   但隐私敏感 API 缺说明字符串有崩溃风险，且提审时也该有这句 */
+				INFOPLIST_KEY_NSMotionUsageDescription = "需要读取设备运动数据，让挂袋跟随晃动摆动。数据仅在本机使用，不会上传";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要访问相册选择纸袋照片";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				/* 强制浅色外观：整套 UI 是 H5 纸质浅色设计、颜色全部硬编码，
+				   不声明的话深色模式下会变成「自绘页面浅 + 系统控件深」的混合体 */
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daidaiji.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3067371FD1D9B9A50DC71202 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		A445AD74701EA5AAA9DF91B6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		E842347A955D5A05F03180BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "袋袋集";
+				INFOPLIST_KEY_NSCameraUsageDescription = "需要使用相机拍摄纸袋照片";
+				/* 摇一摇要读设备运动数据。虽然 CMMotionManager 通常不弹权限框，
+				   但隐私敏感 API 缺说明字符串有崩溃风险，且提审时也该有这句 */
+				INFOPLIST_KEY_NSMotionUsageDescription = "需要读取设备运动数据，让挂袋跟随晃动摆动。数据仅在本机使用，不会上传";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要访问相册选择纸袋照片";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				/* 强制浅色外观：整套 UI 是 H5 纸质浅色设计、颜色全部硬编码，
+				   不声明的话深色模式下会变成「自绘页面浅 + 系统控件深」的混合体 */
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daidaiji.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5CF8C997E0150571D04AA034 /* Build configuration list for PBXProject "DaiDaiJi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A445AD74701EA5AAA9DF91B6 /* Debug */,
+				3067371FD1D9B9A50DC71202 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C892833D335B0F40CD5A5FAB /* Build configuration list for PBXNativeTarget "DaiDaiJi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C2C64FD5ECC0D76BBDAF8DD /* Debug */,
+				E842347A955D5A05F03180BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+}
