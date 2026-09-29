@@ -17,6 +17,26 @@ enum BagImageResolver {
         if let onDisk = ImageStore.load(fileName) { return onDisk }
         return UIImage(named: fileName)
     }
+
+    /// 图片的**宽高比（宽 ÷ 高）**，只读文件头/Asset 元数据，不解码像素。
+    ///
+    /// 用途：展架要「高度固定、宽度等比」——卡宽必须在布局阶段就定下来，
+    /// 见 `ShelfSlotCard` 与 `ShelfMetrics.cardWidth(forRatio:)`。
+    ///
+    /// ⚠️ 为什么可以同步调：`UIImage(contentsOfFile:)` / `UIImage(named:)` 只解析
+    ///    元数据拿尺寸，真正的像素解码是延迟的（仍由 `ThumbnailImage` 在后台做）。
+    ///    结果按文件名缓存 —— 同一张图会被多个视图问到，且文件名是 UUID、内容不可变。
+    /// ⚠️ 返回 nil（文件缺失/读不出）时由调用方兜底，别当成 1。
+    static func aspectRatio(of fileName: String) -> CGFloat? {
+        if let cached = ratioCache[fileName] { return cached }
+        let size = (ImageStore.load(fileName) ?? UIImage(named: fileName))?.size
+        guard let size, size.width > 0, size.height > 0 else { return nil }
+        let ratio = size.width / size.height
+        ratioCache[fileName] = ratio
+        return ratio
+    }
+
+    private static var ratioCache: [String: CGFloat] = [:]
 }
 
 /// 异步缩略图视图：走 `ThumbnailCache`，网格里用它替代直接读原图。

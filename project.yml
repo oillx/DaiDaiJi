@@ -26,20 +26,31 @@ targets:
         excludes:
           - "README.md"
           - "project.yml"
+          - "Info.plist"
           - "*.xcodeproj"
     settings:
+      # ⚠️ Debug 用单文件编译模式（不要 wholemodule）：改成 wholemodule 后
+      #    每次改一行都要重编整个 target，实测增量构建从 ~9s 涨到 ~24s。
+      configs:
+        Debug:
+          SWIFT_COMPILATION_MODE: singlefile
+          ONLY_ACTIVE_ARCH: YES
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.daidaiji.app
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        # 与仓库里的 Info.plist 合并：那里只放 UIAppFonts（随包思源宋体的注册），
+        # 因为 `INFOPLIST_KEY_*` 只认 Xcode 白名单里的键，UIAppFonts 不在其中、写了不生效。
+        # 详见 Support/AppFont.swift 文件头。
+        INFOPLIST_FILE: Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: 袋袋集
         INFOPLIST_KEY_NSCameraUsageDescription: "需要使用相机拍摄纸袋照片"
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "需要访问相册选择纸袋照片"
         # 竖屏为主：布局按 393pt 宽的竖屏写死（主卡 308、货架 110×N），
         # 允许横屏会让主卡与挂袋的尺寸推导失准。
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
-        # iPad 允许横竖屏，但布局仍会以容器宽度自适应
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        # iPad 只允许竖屏：布局按「铺满宽度」重排，横屏会让主卡与展架的比例失衡
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait"
         TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTS_MACCATALYST: NO

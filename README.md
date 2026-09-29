@@ -36,31 +36,36 @@ open DaiDaiJi.xcodeproj      # 在 macOS 上
 DaiDaiJi/
 ├── DaiDaiJiApp.swift              # 入口，挂带 migrationPlan 的 SwiftData 容器
 ├── Models/
-│   ├── BagItemSchema.swift        # ⭐ 版本化 Schema（V1/V2）+ 迁移计划
+│   ├── BagItemSchema.swift        # ⭐ 版本化 Schema（V1/V2/V3）+ 迁移计划
 │   └── BagItem.swift              # 展示 / 搜索 / 日期 / 15 天窗口等派生逻辑
 ├── Support/
 │   ├── BagImagePipeline.swift     # ⭐ 核心图像流水线：矫正→增强→OCR→抠图
 │   ├── CameraController.swift     # AVFoundation 相机会话（拍照/闪光灯/切换镜头）
 │   ├── CategoryMatcher.swift      # 分类模糊匹配（编辑距离）
+│   ├── SuggestionMatcher.swift    # 品牌/标签的候选池 + 包含匹配 + 命中子串高亮
 │   ├── ImageStore.swift           # 图片文件存储（PNG，保留透明通道）
 │   ├── PreviewData.swift          # 预览用内存容器 + H5 的 16 只示例袋子
 │   └── ThumbnailCache.swift       # 缩略图内存缓存 + 等比缩放
 ├── Views/
-│   ├── ShelfView.swift            # 首页：陈列 / 全部收藏 双屏 + 底部导航
+│   ├── ShelfView.swift            # 首页：陈列 / 全部收藏 双屏 + 底部导航 + 详情浮层
 │   ├── HeroCardView.swift         # 主展位：玻璃卡 + 3D 翻面 + 背面详情
 │   ├── RackSection.swift          # 挂袋吧台：绳索 / 孔环 / 摆动 / 主从联动
 │   ├── BagCell.swift              # 网格卡片
 │   ├── ThumbnailImage.swift       # 异步缩略图视图 + 图片名解析（磁盘/Assets 双源）
 │   ├── AddBagView.swift           # 新增：选图→跑流水线→表单（名称/分类/材质/标签）→保存
 │   ├── CameraView.swift           # 自定义相机 + 辅助取景框
-│   └── BagDetailView.swift        # 详情：大图 + 编辑 + 删除二次确认
+│   ├── DetailCardView.swift       # ⭐ 详情卡：只读态 / 编辑态原地切换（下划线表单）
+│   └── BagDetailView.swift        # 完整页：大图 + 编辑 + 删除二次确认（删除唯一入口）
 ├── Assets.xcassets/               # AppIcon + AccentColor + 16 只演示袋子 + light-beam
 └── DaiDaiJi.xcodeproj/            # Xcode 工程
 ```
 
-> ⚠️ **改了 `BagItem` 的字段？** 别直接改 `BagItemSchema.swift` 里的 V2 ——
-> 按文件顶部注释新建 `SchemaV3` + 追加一个 `MigrationStage`，再把 `typealias` 指过去。
+> ⚠️ **改了 `BagItem` 的字段？** 别直接改 `BagItemSchema.swift` 里已发布的 V2 / V3 ——
+> 按文件顶部注释新建 `SchemaV4` + 追加一个 `MigrationStage`，再把 `typealias` 指过去。
 > 直接改已发布的 schema 会让老库对不上、启动即崩。
+>
+> 📌 新增 `String` 字段时**务必带上字面量默认值**（`var location: String = ""`）：
+> 非可选且无默认值的属性，老库升上来那一列是 NULL，读它当场崩。
 >
 > ⚠️ **图集取名**：`BagItem.imageFileName` 一个字段同时承载两种来源，
 > 由 `BagImageResolver` 统一解析 —— 先查 `Documents/bags/`（用户拍的），
@@ -80,8 +85,11 @@ DaiDaiJi/
 | **辅助拍照框** | 自定义相机实时预览 + 镂空取景框 + 提示文字 + 闪光灯/切换镜头 |
 | **货架浏览** | `LazyVGrid` 网格 + 「最近上传(15天)/全部」分段 + 缩略图缓存 |
 | **搜索定位** | 按名称/分类/详情模糊搜索 |
+| **搜索无结果引导** | 「没有结果」空状态：衬线大字 + 关键词回显 + 最多 4 个「还能搜到的」出路标签（品牌优先于标签，点一下替换搜索词） |
 | **分类模糊匹配** | 输入分类时提示相似已有分类，可替换 |
-| **详情/编辑/删除** | 大图 + 可编辑信息 + 删除二次确认 |
+| **详情卡原地编辑** | 点卡片出详情 → 「编辑」把卡片原地切成表单（图区收小、只读三块条 + 下划线字段），底部换成 [取消][保存]；取消不写回任何值 |
+| **品牌 / 标签实时匹配** | 输入时列出现有品牌/标签（带「已有 N 件」）+「＋ 新建」入口，只高亮命中的那几个字；长度上界 名称 24 / 品牌 20 / 标签 12 |
+| **详情 / 删除** | 详情卡「更多 · 删除 →」进完整页：大图 + 可编辑信息 + 删除二次确认 |
 | **本地存储** | SwiftData（元数据）+ 文件系统（图片），无登录无云端 |
 
 ---

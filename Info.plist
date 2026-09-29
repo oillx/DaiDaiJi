@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  这个文件**只放**那些没法用 `INFOPLIST_KEY_*` 构建设置表达的键：
+	  Xcode 的自动生成只认白名单里的键（UIAppFonts 不在其中，实测不生效），
+	  其余键（Bundle 名、权限说明、启动屏、方向…）仍由 GENERATE_INFOPLIST_FILE
+	  生成，并与本文件**合并** —— 所以这里不用把整套键抄一遍。
+
+	  随包字体的注册靠这里的 UIAppFonts：iOS 不预装宋体，不注册的话
+	  `Font.custom("SourceHanSerifCN-Heavy")` 会静默回落成苹方黑体。
+	  字体文件在 Fonts/，取字逻辑见 Support/AppFont.swift。
+	-->
+	<key>UIAppFonts</key>
+	<array>
+		<string>SourceHanSerifCN-Bold.otf</string>
+		<string>SourceHanSerifCN-Heavy.otf</string>
+	</array>
+</dict>
+</plist>

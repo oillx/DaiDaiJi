@@ -5,8 +5,11 @@ import SwiftData
 /// 图片本身存文件系统，数据库只存文件名，避免把大图塞进数据库拖慢查询。
 ///
 /// 字段与 H5 原型 `app.js` 顶部 `items[]` 对齐：
-/// `id / name / shelf / tags / date / size / material / note`。
+/// `id / name / shelf / tags / date / size / note`。
 /// 其中 `shelf`（展示架 / 品牌·店铺）→ `category`，`date` → `createdAt`。
+///
+/// 📌 H5 里还有个 `material`（材质）字段，**已按需求整体退役** ——
+///    界面上的「材质」文案全部去掉，持久化列也随 `SchemaV5` 删除，见 `BagItemSchema.swift`。
 ///
 /// ⚠️ 模型的**定义**在 `Models/BagItemSchema.swift`（版本化 `SchemaV2`），
 ///    本文件只放**展示 / 搜索 / 时间口径**等派生逻辑。
@@ -19,28 +22,46 @@ extension BagItem {
     /// 品牌 / 店铺的展示兜底
     var displayShelf: String { category.isEmpty ? "未分类" : category }
 
-    /// 材质展示兜底（H5 侧空值渲染成「—」）
-    var displayMaterial: String { material.isEmpty ? "—" : material }
+    /// 上传地点的展示兜底。
+    ///
+    /// ⚠️ 两处的空值口径**不一样**，别合并成一个：
+    ///  · 首页背面 / 详情只读态：照 H5 `heroFactsHTML`，值为空时**整行不出现**；
+    ///  · 详情卡编辑态的只读条：照 H5 `enterDetailEdit`，空值渲染成「—」。
+    ///    新上传的藏品没有地点，只读条必须留出这一格，否则三块布局会塌。
+    var displayLocation: String { location.isEmpty ? "—" : location }
 
-    /// 用于搜索匹配：名称 + 分类 + 标签 + 材质 + 详情
+    /// 一条收藏「可被搜到的文本」—— H5 `searchableText(item)`。
+    ///
+    /// 只覆盖**名称 / 品牌（分类）/ 标签**三类，拼成一个串、一次小写化。
+    /// ⚠️ 不含材质与备注：搜索框占位符写的就是「名称 / 品牌 / 标签」，
+    ///    H5 也只认这三类（iOS 原来多匹配了材质与备注，已收回）。
+    var searchableText: String {
+        ([name, category] + tags).joined(separator: " ").lowercased()
+    }
+
+    /// H5 `matchQuery(haystack, keywords)` 的单个关键词版本。
+    ///
+    /// ⚠️ 多关键词是 **AND**：调用方要按空格拆开后逐个调用（见 `ShelfView.filteredBags`），
+    ///    不是把整串当一个子串去匹配 —— 否则搜「瑞幸 联名」永远搜不到。
     func matches(_ keyword: String) -> Bool {
         let k = keyword.trimmingCharacters(in: .whitespaces).lowercased()
         guard !k.isEmpty else { return true }
-        return name.lowercased().contains(k)
-            || category.lowercased().contains(k)
-            || material.lowercased().contains(k)
-            || note.lowercased().contains(k)
-            || tags.contains { $0.lowercased().contains(k) }
+        return searchableText.contains(k)
     }
 }
 
 // MARK: - 编号（三处必须一致）
 extension BagItem {
-    /// 编号文案：在给定全集中的序号（从 0 起），补零 3 位。
+    /// 编号文案：`NO.xxx`，补零 3 位。
     /// H5 里 `NO.xxx` 出现在三处——背面眉标、正面空状态、详情——全部走同一条规则。
-    /// ⚠️ 编号是「在数据集里的位置」，不是收藏时间；删掉中间某一只后，后面所有编号都会前移。
-    static func numberText(index: Int) -> String {
-        "NO." + String(format: "%03d", index + 1)
+    ///
+    /// ⚠️ 口径已变更（不再是 H5 的「在数据集里的位置」）：
+    ///    旧口径下删掉中间某一只，之后所有编号都会前移 —— 同一只袋子昨天叫 NO.007、
+    ///    今天删了别人就变成 NO.006，印在卡面上很别扭。
+    ///    现在编号在**上传时发放**（存在 `serialNumber`），删除与拖动排序都不再影响它。
+    ///    代价：删号会留空（NO.003 可能空缺），这是编号固定的必然结果。
+    var numberText: String {
+        "NO." + String(format: "%03d", serialNumber)
     }
 
     /// 空状态编号（H5：`NO.000`）
@@ -67,6 +88,25 @@ enum DateFormat {
     static func monthDayDot(_ date: Date) -> String {
         let c = Calendar.current.dateComponents([.month, .day], from: date)
         return String(format: "%02d.%02d", c.month ?? 0, c.day ?? 0)
+    }
+
+    /// 「2026-09-15」→ `Date`（详情卡编辑态的「收藏日期」输入框用）。
+    ///
+    /// 口径照 H5 `normalizeDateText`：`/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/`
+    /// —— 年份必须 4 位，年月日之间可以是任意非数字字符，所以
+    /// `2026/9/5`、`2026年9月5日` 都能解析出来（用户手打时容错更好）。
+    ///
+    /// ⚠️ 解析不出来一律返回 `nil`，**不要**回退成 `.now`：
+    ///    调用方（保存）靠这个 nil 决定「保持原值」，回退成今天会把用户
+    ///    随手敲错的一个字符变成「收藏日期被改成今天」这种静默数据损坏。
+    static func parseDash(_ text: String) -> Date? {
+        let parts = text.split(whereSeparator: { !$0.isNumber }).map(String.init)
+        guard parts.count >= 3, parts[0].count == 4,
+              let y = Int(parts[0]), let m = Int(parts[1]), let d = Int(parts[2]),
+              (1...12).contains(m), (1...31).contains(d) else { return nil }
+        var c = DateComponents()
+        c.year = y; c.month = m; c.day = d; c.hour = 12
+        return Calendar.current.date(from: c)
     }
 }
 
@@ -95,8 +135,20 @@ enum Feed {
     /// **三处共用同一口径**：①最近收集区 ②卡片「最新」角标 ③头部统计的「N 件最近」。
     static let recentWindowDays = 15
 
-    /// 货架区最多展示几张（H5 `recentItems(limit = 6)`）
+    /// 货架区**一屏基准张数**（H5 `recentItems(limit = 6)`）。
+    ///
+    /// ⚠️ 它现在的含义是「**版式按几张算**」而不是「最多显示几张」：
+    ///    卡片宽 / 重叠 / 舞台高都由它推出来 —— 张数超过它时**卡片不再继续变小**，
+    ///    而是让这一排宽于容器、交给横向滚动（见 `rackMaxItems` 与 `RackStage`）。
+    ///    ⚠️ 改这个数会同时改变卡宽：调小 ⇒ 卡片变大、能滚的更快到；调大 ⇒ 卡片变小。
     static let rackLimit = 6
+
+    /// 货架区一次最多**取出**几张（超出一屏基准张数的部分靠横向滚动看）。
+    ///
+    /// 📌 按需求「超过 6 张卡片要能横向滚动」：取数上限从 6 放开到 **24**。
+    ///    15 天窗口内一般远小于它，也就是说实际上「15 天内有多少就挂多少」；
+    ///    真要完全不截断，把这个数调大即可（只影响一排多长，不影响卡宽）。
+    static let rackMaxItems = 24
 
     /// 距基准日的天数
     static func daysAgo(_ date: Date, base: Date) -> Int {

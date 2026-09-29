@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // ═══════════════════════════════════════════════════════════════
 //  跨设备布局（iPhone / iPad / iPad 分屏）
@@ -21,28 +22,29 @@ import SwiftUI
 //
 //  iPad 允许 Slide Over / Split View，窗口宽度可以在 320 ~ 1366pt 之间连续变化；
 //  而 iPhone 也横跨 320（SE）~ 440（Pro Max）。用「是不是 iPad」来分支，
-//  在分屏下必然出错。所以这里只做一件事：
+//  在分屏下必然出错。所以：
 //
-//      把内容约束在一个「阅读列」里，超宽时居中留白。
+//  ⚠️ 唯一的例外是 `isPad` —— 只用来开「首页大卡与袋子的 iPhone 专属收矮」
+//     （`HeroMetrics` 的 `phoneCardShrink` / `phoneBagShrink`）。原因：iPhone 横屏 956pt、iPad 竖屏 820pt，
+//     容器宽度区间**重叠**，靠宽度分不开这两者；而口径是「iPhone 收矮、iPad 保持」。
+//     其余一切规则仍按宽度自适应。
 //
-//  这套规则在 iPhone 上是**恒等变换**（iPhone 的屏宽永远小于列宽上限，
-//  `maxWidth` 上限根本不会生效），所以不会改变现有观感。
+//      **内容铺满容器宽度**（不设「阅读列」上限、两侧不留白），
+//      只把两类东西收住：① 固定尺寸的卡片（按容器宽放大，但夹在上限内）；
+//      ② 页内水平内边距（宽屏上从 H5 的 20/18/22 提到 24~28）。
+//
+//  📌 曾经的「等比放大壳」方案（内容按 430 设计宽整体 scaleEffect、居中留白）
+//     已废弃：用户要的是 **iPad 铺满全屏**，不是浏览器样机那种窄壳。
+//     现在 iPad 上：字号与卡片接近手机尺寸，靠「挂袋摊开、展架一屏多显示几张、
+//     网格多长几列」来利用宽度。
+//
+//  这套规则在 iPhone 上是**恒等变换**（容器 ≤ 453pt 时既不放宽内边距、
+//  也不放大卡片），所以不会改变现有观感。
 // ═══════════════════════════════════════════════════════════════
 
 enum AppLayout {
 
-    // MARK: - 阅读列宽
-
-    /// 首屏（陈列）的列宽。
-    ///
-    /// 取 620 而不是更大，是因为「最近收集」满 6 张时天然需要
-    /// `110 × 6 − 20 × 5 = 560pt`，再加左右各 12pt 留白 ≈ 584；
-    /// 620 刚好容得下这一排，不会逼着挂袋缩小。
-    static let showcaseMaxWidth: CGFloat = 620
-
-    /// 全部收藏页的列宽。比首屏宽 —— 分组视图用的是 `adaptive` 列，
-    /// 宽度给足才会多长几列，iPad 上更实用。
-    static let libraryMaxWidth: CGFloat = 940
+    // MARK: - 页面宽度
 
     /// 相机页的列宽：预览区与底部三控件共用同一列。
     ///
@@ -72,17 +74,23 @@ enum AppLayout {
     /// 只把外框改大只会多出一圈空白，比例会崩。
     static let phoneWidth: CGFloat = 393
 
-    /// 卡片的放大上限。再大就会喧宾夺主，也会挤掉「最近收集」的版面。
-    static let cardMaxScale: CGFloat = 1.35
+    /// 卡片的放大上限（iPad 上 1.25：308×348 变 385×435；卡面尺寸见 `HeroMetrics`，
+    /// 它在 iPhone 上按需求另收了 28 高）。
+    /// 再大就会喧宾夺主，也会挤掉「最近收集」的版面。
+    static let cardMaxScale: CGFloat = 1.25
 
     // MARK: - 工具
 
-    /// 容器的实际内容宽度。
+    /// 页内水平内边距：iPhone 照 H5 的数值（20 / 18 / 22 / 12），
+    /// 宽屏（iPad）统一提到 **24~28**，避免界面在大屏上贴边。
     ///
-    /// `container` 还没被测到（首帧为 0）时回退到 `phoneWidth`，
-    /// 避免首帧按一个错误的宽度排版、再跳一下。
-    static func column(_ container: CGFloat, max maxWidth: CGFloat) -> CGFloat {
-        container > 0 ? min(container, maxWidth) : phoneWidth
+    /// 规则：`base + 8` 再夹到 `[24, 28]` ——
+    ///   20 → 28、18 → 26、22 → 28（夹住）、12 → 24（夹住）。
+    ///
+    /// ⚠️ iPhone（容器 ≤ 453pt）**原样返回**，一分不改。
+    static func pagePad(_ base: CGFloat, for container: CGFloat) -> CGFloat {
+        guard isWide(container) else { return base }
+        return min(28, max(24, base + 8))
     }
 
     /// 卡片放大倍数：以 iPhone 屏宽为 1.0，随列宽线性放大到上限。
@@ -119,6 +127,16 @@ enum AppLayout {
         return min(1.5, previewWidth / 420)
     }
 
+    /// 是否 iPad。**全项目唯一按机型判断的地方**（服务「首页大卡只在 iPhone 上收矮」）。
+    ///
+    /// 为什么不能只看宽度：iPhone 横屏最宽 956pt，iPad 竖屏 820pt ——
+    /// 容器宽度区间是**重叠**的，宽度分不出这两者。而口径是
+    /// 「iPhone 上把大卡与袋子收矮、iPad 一律保持稿面尺寸」，只能认机型。
+    ///
+    /// 调用点唯一：`HeroMetrics` 的收矮常量（`Views/HeroCardView.swift`）。
+    /// 其余一切（内边距、卡片放大、网格列数…）仍按容器宽度自适应。
+    static var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+
     /// 是否属于「真正的宽屏」。
     ///
     /// 用来给「允许放大」这类**会改变观感**的规则设闸门：
@@ -144,26 +162,5 @@ extension View {
     func contentColumn(_ maxWidth: CGFloat) -> some View {
         frame(maxWidth: maxWidth)
             .frame(maxWidth: .infinity, alignment: .center)
-    }
-}
-
-// MARK: - 容器宽度探测
-
-/// 只读容器宽度的小工具：不占位、不影响视觉。
-///
-/// SwiftUI 在 iOS 17 上没有 `onGeometryChange`（iOS 18 才有），
-/// 所以沿用项目里已有的 `Color.clear + GeometryReader` 写法（见 `RackStage`）。
-///
-/// 用途：iPad 旋转 / 分屏拖动都会改变容器宽度，布局要跟着重算
-/// （列宽、网格列数、卡片放大倍数都依赖它）。
-struct WidthProbe: View {
-    @Binding var width: CGFloat
-
-    var body: some View {
-        GeometryReader { geo in
-            Color.clear
-                .onAppear { width = geo.size.width }
-                .onChange(of: geo.size.width) { _, new in width = new }
-        }
     }
 }

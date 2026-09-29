@@ -47,7 +47,13 @@ enum LayoutToggleMetrics {
     ///
     /// 不是估的：把「宫格 / 展架」按 12pt×3 = 36px 用 CoreText 栅格化，
     /// 墨迹正好 68~70 × 34 px，与设计稿的 69/70 × 34 一致（11pt 会小一号）。
-    static let labelFont: CGFloat = 12
+    ///
+    /// 📌 **按需求从 12 收到 11** —— 右上角那枚按钮的标签，首页「设置」与收藏页
+    ///    「宫格 / 展架」同源（都走 `HeaderEntryButton`），一起变小。
+    ///    它与 `labelSpacing`(6→5) 及 `HeaderEntryMetrics` 的上下内边距一起收，
+    ///    药丸总高 60 → **54pt**。
+    ///    ⚠️ 想回设计稿值：写回 12（只影响这枚按钮与文末的 `#Preview`）。
+    static let labelFont: CGFloat = 11
 
     /// 图标框底边 → 标签**行盒**顶的间距。
     ///
@@ -55,7 +61,10 @@ enum LayoutToggleMetrics {
     /// 扣掉宫格墨迹在框内留的 0.77pt、再扣掉苹方 12pt 行盒在墨迹上方的
     /// 约 2.8pt 空白（CoreText 实测 ascent − 墨迹顶），取整得 6。
     /// 实测结果：宫格那档的墨迹间隙 27px、展架 32px，与设计稿一致。
-    static let labelSpacing: CGFloat = 6
+    ///
+    /// 📌 **按需求从 6 收到 5**：上面那套 27px 的推导是配 **12pt** 标签算的，
+    ///    标签收到 11 后间隙同步收一档，两行才不会被撑开。想回设计稿值写回 6。
+    static let labelSpacing: CGFloat = 5
 
     /// 图标色 #333333（设计稿实测的实心区颜色，**不是** `.primary` 的纯黑）。
     static let iconColor = Color(red: 51 / 255, green: 51 / 255, blue: 51 / 255)
@@ -208,6 +217,295 @@ struct LayoutGlyphView: View {
 
     private var glyphShape: AnyShape {
         isGrid ? AnyShape(ShelfGlyph()) : AnyShape(GridGlyph())
+    }
+}
+
+// MARK: - 标题栏右上角的入口按钮（H5 `.header-settings`）
+
+/// 首页 / 全部收藏右上角那枚「玻璃托底按钮」的规格。
+///
+/// H5 注释原文：左侧是「大标题 + 小文案」的上下两行文字块，右侧只有一枚裸图标
+/// 会显得单薄，加底托后右侧成为一块有分量的实体，与左侧文字块配平。
+///
+/// ⚠️ 标签字号沿用 iOS 侧按**设计稿**量得的 12pt（`LayoutToggleMetrics.labelFont`），
+///    而不是 H5 的 `font-size: 9px` —— 两个来源在这一点上打架，已确认以设计稿为准
+///    （9px 的按钮文字在 24pt 图标下明显偏小）。
+///    📌 该字号现按需求收到 **11**；连同 `padTop/padBottom`(9/7→7/5) 与 `gap`(6→5)，
+///       药丸总高 60 → 54pt —— 见各常量上的说明。
+enum HeaderEntryMetrics {
+    /// H5 `border-radius: 16px`
+    static let cornerRadius: CGFloat = 16
+    /// H5 `padding: 9px 12px 7px`（上下不对称：图标重心比文字高）
+    ///
+    /// 📌 **按需求各自收 2pt（9→7 / 7→5）**：这枚按钮原来比左侧「大标题 + 小文案」
+    ///    那两行还高，整条标题栏被它撑到 60pt。收完 54pt，仍高于 44pt 的最小可点尺寸。
+    ///    ⚠️ 再往下收要注意：左侧文字块本身约 52pt 高，低于它之后按钮不再是
+    ///       「决定标题栏高度的那一项」，继续减内边距只会让按钮在栏内显得更小，
+    ///       但标题栏不会再变矮。
+    static let padTop: CGFloat = 7
+    static let padBottom: CGFloat = 5
+    static let padHorizontal: CGFloat = 12
+    /// 图标与标签之间。
+    ///
+    /// 取 `LayoutToggleMetrics.labelSpacing`（现 5；设计稿是 6 —— 图标墨迹底
+    /// → 标签墨迹顶 27px）而不是 H5 的 `gap: 3px` —— 那个 3 是配 9px 小字算的；
+    /// 既然标签字号是按设计稿量出来的，间距也跟着它走，
+    /// 否则「图标 24 + 小字 + 间隙 3」会把两行挤在一起。
+    static let gap: CGFloat = LayoutToggleMetrics.labelSpacing
+    /// H5 `background: rgba(255,255,255,.6)` / `border: 1px solid rgba(255,255,255,.75)`
+    static let fill = Color.white.opacity(0.6)
+    static let border = Color.white.opacity(0.75)
+    /// H5 `box-shadow: 0 6px 14px rgba(52,66,92,.08)`
+    /// （CSS 的 blur 14 → SwiftUI 的 radius 取一半 = 7）
+    static let shadowColor = Color(red: 52 / 255, green: 66 / 255, blue: 92 / 255)
+    static let shadowOpacity: Double = 0.08
+    static let shadowRadius: CGFloat = 7
+    static let shadowY: CGFloat = 6
+    /// H5 `letter-spacing: 1px`
+    static let labelTracking: CGFloat = 1
+    /// 「设置」入口的六角螺帽图标框（H5 `width: 24px`）
+    static let settingsIconSide: CGFloat = 24
+}
+
+/// 右上角玻璃托底按钮：**图标在上、文字在下**。
+///
+/// 首页那枚是「设置」，收藏页那枚是布局切换 —— 外观完全同构，
+/// 所以做成一个组件，两处只换图标与文字。
+struct HeaderEntryButton<Icon: View>: View {
+    let label: String
+    var action: () -> Void = {}
+    @ViewBuilder var icon: Icon
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: HeaderEntryMetrics.gap) {
+                icon
+                Text(label)
+                    .font(.system(size: LayoutToggleMetrics.labelFont))
+                    .tracking(HeaderEntryMetrics.labelTracking)
+                    .foregroundStyle(LayoutToggleMetrics.labelColor)
+            }
+            .padding(.top, HeaderEntryMetrics.padTop)
+            .padding(.bottom, HeaderEntryMetrics.padBottom)
+            .padding(.horizontal, HeaderEntryMetrics.padHorizontal)
+            .background(
+                HeaderEntryMetrics.fill,
+                in: RoundedRectangle(cornerRadius: HeaderEntryMetrics.cornerRadius,
+                                     style: .continuous)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: HeaderEntryMetrics.cornerRadius,
+                                 style: .continuous)
+                    .strokeBorder(HeaderEntryMetrics.border, lineWidth: 1)
+            }
+            .shadow(color: HeaderEntryMetrics.shadowColor
+                        .opacity(HeaderEntryMetrics.shadowOpacity),
+                    radius: HeaderEntryMetrics.shadowRadius,
+                    x: 0, y: HeaderEntryMetrics.shadowY)
+            // 底托是圆角矩形，命中区要跟上，否则四角点不到
+            .contentShape(RoundedRectangle(cornerRadius: HeaderEntryMetrics.cornerRadius,
+                                           style: .continuous))
+        }
+        .buttonStyle(HeaderEntryButtonStyle())
+    }
+}
+
+/// H5 `.header-settings:active { transform: scale(.94) }`
+private struct HeaderEntryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.94 : 1)
+            .animation(.easeOut(duration: 0.18), value: configuration.isPressed)
+    }
+}
+
+/// 「设置」入口的六角螺帽。
+///
+/// ⚠️ 下面这串路径是**从设计给的 SVG 直接转过来的**（`d` 属性逐条命令转成
+///    `move / addLine / addCurve / closeSubpath`），不是照着画一个六边形。
+///    它由四条子路径叠成：外六边形 → 内六边形 → r4 圆 → r2 圆，
+///    靠 even-odd 挖出「螺帽外框 + 中间圆环」。
+///    手画一个六边形再挖个圆，观感接近，但圆角、粗细、环宽都不是这几个数。
+///
+/// ⚠️ H5 侧用的是 `fill-rule: evenodd`，填充必须带 `FillStyle(eoFill: true)`，
+///    否则中间该挖空的地方会被填实、四个圆环全糊成一坨。
+struct SettingsNutGlyph: Shape {
+    func path(in rect: CGRect) -> Path {
+        let side = min(rect.width, rect.height)
+        let k = side / 24
+        let ox = rect.midX - side / 2
+        let oy = rect.midY - side / 2
+        func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+            CGPoint(x: ox + k * x, y: oy + k * y)
+        }
+
+        var p = Path()
+        p.move(to: pt(10.5281, 1.93003))
+        p.addCurve(to: pt(12.0001, 1.54407),
+                   control1: pt(10.9774, 1.677),
+                   control2: pt(11.4844, 1.54407))
+        p.addCurve(to: pt(13.4721, 1.93003),
+                   control1: pt(12.5158, 1.54407),
+                   control2: pt(13.0227, 1.677))
+        p.addLine(to: pt(20.1321, 5.68003))
+        p.addCurve(to: pt(21.2501, 6.78011),
+                   control1: pt(20.5957, 5.94109),
+                   control2: pt(20.9815, 6.32077))
+        p.addCurve(to: pt(21.6601, 8.29403),
+                   control1: pt(21.5186, 7.23946),
+                   control2: pt(21.6601, 7.76196))
+        p.addLine(to: pt(21.6601, 15.706))
+        p.addCurve(to: pt(21.2501, 17.2199),
+                   control1: pt(21.6601, 16.2381),
+                   control2: pt(21.5186, 16.7606))
+        p.addCurve(to: pt(20.1321, 18.32),
+                   control1: pt(20.9815, 17.6793),
+                   control2: pt(20.5957, 18.059))
+        p.addLine(to: pt(13.4721, 22.07))
+        p.addCurve(to: pt(12.0001, 22.456),
+                   control1: pt(13.0227, 22.3231),
+                   control2: pt(12.5158, 22.456))
+        p.addCurve(to: pt(10.5281, 22.07),
+                   control1: pt(11.4844, 22.456),
+                   control2: pt(10.9774, 22.3231))
+        p.addLine(to: pt(3.86809, 18.32))
+        p.addCurve(to: pt(2.75012, 17.2199),
+                   control1: pt(3.40447, 18.059),
+                   control2: pt(3.01863, 17.6793))
+        p.addCurve(to: pt(2.34009, 15.706),
+                   control1: pt(2.48161, 16.7606),
+                   control2: pt(2.3401, 16.2381))
+        p.addLine(to: pt(2.34009, 8.29403))
+        p.addCurve(to: pt(2.75012, 6.78011),
+                   control1: pt(2.3401, 7.76196),
+                   control2: pt(2.48161, 7.23946))
+        p.addCurve(to: pt(3.86809, 5.68003),
+                   control1: pt(3.01863, 6.32077),
+                   control2: pt(3.40447, 5.94109))
+        p.addLine(to: pt(10.5281, 1.93003))
+        p.closeSubpath()
+
+        p.move(to: pt(12.4911, 3.67403))
+        p.addCurve(to: pt(12.0001, 3.54519),
+                   control1: pt(12.3412, 3.58956),
+                   control2: pt(12.1721, 3.54519))
+        p.addCurve(to: pt(11.5091, 3.67403),
+                   control1: pt(11.8281, 3.54519),
+                   control2: pt(11.6589, 3.58956))
+        p.addLine(to: pt(4.85009, 7.42303))
+        p.addCurve(to: pt(4.47714, 7.78946),
+                   control1: pt(4.69547, 7.50993),
+                   control2: pt(4.56676, 7.6364))
+        p.addCurve(to: pt(4.34009, 8.29403),
+                   control1: pt(4.38752, 7.94252),
+                   control2: pt(4.34022, 8.11666))
+        p.addLine(to: pt(4.34009, 15.706))
+        p.addCurve(to: pt(4.47714, 16.2106),
+                   control1: pt(4.34022, 15.8834),
+                   control2: pt(4.38752, 16.0575))
+        p.addCurve(to: pt(4.85009, 16.577),
+                   control1: pt(4.56676, 16.3636),
+                   control2: pt(4.69547, 16.4901))
+        p.addLine(to: pt(11.5101, 20.327))
+        p.addCurve(to: pt(12.0011, 20.4559),
+                   control1: pt(11.6599, 20.4115),
+                   control2: pt(11.8291, 20.4559))
+        p.addCurve(to: pt(12.4921, 20.327),
+                   control1: pt(12.1731, 20.4559),
+                   control2: pt(12.3422, 20.4115))
+        p.addLine(to: pt(19.1521, 16.577))
+        p.addCurve(to: pt(19.525, 16.2106),
+                   control1: pt(19.3067, 16.4901),
+                   control2: pt(19.4354, 16.3636))
+        p.addCurve(to: pt(19.6621, 15.706),
+                   control1: pt(19.6147, 16.0575),
+                   control2: pt(19.662, 15.8834))
+        p.addLine(to: pt(19.6621, 8.29403))
+        p.addCurve(to: pt(19.525, 7.78946),
+                   control1: pt(19.662, 8.11666),
+                   control2: pt(19.6147, 7.94252))
+        p.addCurve(to: pt(19.1521, 7.42303),
+                   control1: pt(19.4354, 7.6364),
+                   control2: pt(19.3067, 7.50993))
+        p.addLine(to: pt(12.4911, 3.67403))
+        p.closeSubpath()
+
+        p.move(to: pt(12.0001, 8.00003))
+        p.addCurve(to: pt(14.8285, 9.1716),
+                   control1: pt(13.061, 8.00003),
+                   control2: pt(14.0784, 8.42145))
+        p.addCurve(to: pt(16.0001, 12),
+                   control1: pt(15.5787, 9.92174),
+                   control2: pt(16.0001, 10.9392))
+        p.addCurve(to: pt(14.8285, 14.8285),
+                   control1: pt(16.0001, 13.0609),
+                   control2: pt(15.5787, 14.0783))
+        p.addCurve(to: pt(12.0001, 16),
+                   control1: pt(14.0784, 15.5786),
+                   control2: pt(13.061, 16))
+        p.addCurve(to: pt(9.17166, 14.8285),
+                   control1: pt(10.9392, 16),
+                   control2: pt(9.92181, 15.5786))
+        p.addCurve(to: pt(8.00009, 12),
+                   control1: pt(8.42151, 14.0783),
+                   control2: pt(8.00009, 13.0609))
+        p.addCurve(to: pt(9.17166, 9.1716),
+                   control1: pt(8.00009, 10.9392),
+                   control2: pt(8.42151, 9.92174))
+        p.addCurve(to: pt(12.0001, 8.00003),
+                   control1: pt(9.92181, 8.42145),
+                   control2: pt(10.9392, 8.00003))
+        p.closeSubpath()
+
+        p.move(to: pt(12.0001, 10))
+        p.addCurve(to: pt(11.2347, 10.1523),
+                   control1: pt(11.7374, 10),
+                   control2: pt(11.4774, 10.0518))
+        p.addCurve(to: pt(10.5859, 10.5858),
+                   control1: pt(10.9921, 10.2528),
+                   control2: pt(10.7716, 10.4001))
+        p.addCurve(to: pt(10.1523, 11.2347),
+                   control1: pt(10.4002, 10.7715),
+                   control2: pt(10.2528, 10.992))
+        p.addCurve(to: pt(10.0001, 12),
+                   control1: pt(10.0518, 11.4773),
+                   control2: pt(10.0001, 11.7374))
+        p.addCurve(to: pt(10.1523, 12.7654),
+                   control1: pt(10.0001, 12.2627),
+                   control2: pt(10.0518, 12.5227))
+        p.addCurve(to: pt(10.5859, 13.4142),
+                   control1: pt(10.2528, 13.008),
+                   control2: pt(10.4002, 13.2285))
+        p.addCurve(to: pt(11.2347, 13.8478),
+                   control1: pt(10.7716, 13.6),
+                   control2: pt(10.9921, 13.7473))
+        p.addCurve(to: pt(12.0001, 14),
+                   control1: pt(11.4774, 13.9483),
+                   control2: pt(11.7374, 14))
+        p.addCurve(to: pt(13.4143, 13.4142),
+                   control1: pt(12.5305, 14),
+                   control2: pt(13.0392, 13.7893))
+        p.addCurve(to: pt(14.0001, 12),
+                   control1: pt(13.7894, 13.0392),
+                   control2: pt(14.0001, 12.5305))
+        p.addCurve(to: pt(13.4143, 10.5858),
+                   control1: pt(14.0001, 11.4696),
+                   control2: pt(13.7894, 10.9609))
+        p.addCurve(to: pt(12.0001, 10),
+                   control1: pt(13.0392, 10.2107),
+                   control2: pt(12.5305, 10))
+        p.closeSubpath()
+        return p
+    }
+}
+
+/// 「设置」图标槽：统一尺寸、颜色与镂空填充规则（与 `LayoutGlyphView` 同一套口径）。
+struct SettingsGlyphView: View {
+    var body: some View {
+        SettingsNutGlyph()
+            .fill(LayoutToggleMetrics.iconColor, style: FillStyle(eoFill: true))
+            .frame(width: HeaderEntryMetrics.settingsIconSide,
+                   height: HeaderEntryMetrics.settingsIconSide)
     }
 }
 

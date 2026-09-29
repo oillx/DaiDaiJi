@@ -21,7 +21,13 @@ enum CaptureMetrics {
     // 取景虚线框（相对预览区）
     static let guideInsetH: CGFloat = 31        // 左右各内缩
     static let guideWidth: CGFloat = 280        // = 342 - 31×2
-    static let guideHeight: CGFloat = 317       // 高度不随宽度派生，按稿面固定
+    /// 取景框高度。稿面 317；📌 按需求「高度加高 1/3」⇒ **317 × 4/3 ≈ 422.7**。
+    ///
+    /// ⚠️ 框是**以预览区中心为基准**定位的（只做 `guideOffsetY` 上移 15.5），
+    ///    所以加高的部分是**上下各摊一半**（±52.8pt）。
+    ///    预览区高约 584pt，加高后上下仍各留 ~65 / ~96pt 余量，不会顶出预览区。
+    /// ⚠️ 想回稿面值：写回 317。
+    static let guideHeight: CGFloat = 317 * 4 / 3
     static let guideOffsetY: CGFloat = -15.5    // 比预览区中心略偏上
     static let guideLineWidth: CGFloat = 4
     static let guideDash: [CGFloat] = [16.5, 17]

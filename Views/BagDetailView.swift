@@ -1,7 +1,14 @@
 import SwiftUI
 import SwiftData
 
-/// 纸袋详情：大图 + 基础信息（可编辑）+ 补充信息 + 删除（二次确认）
+/// 纸袋详情（完整页）：大图 + 基础信息（可编辑）+ 补充信息 + 删除（二次确认）
+///
+/// ⚠️ 与 `DetailCardView` 的分工（详情卡改版之后）：
+///  · 日常编辑走 `DetailCardView` 的**原地编辑态**（对齐 H5 原型：
+///    卡片从「看」切成「改」，不新开浮层）；
+///  · 本页由详情卡的「更多 · 删除 →」推入，承担两件事：
+///    ① 删除 —— H5 原型里没有删除功能，这是 iOS 侧独有的能力；
+///    ② 一个不依赖卡内小字号的、更大的编辑面（视作兜底入口）。
 struct BagDetailView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -41,7 +48,6 @@ struct BagDetailView: View {
                     VStack(spacing: 12) {
                         TextField("名称", text: $bag.name)
                         TextField("分类", text: $bag.category)
-                        TextField("材质", text: $bag.material)
                         // 标签在编辑态用逗号串表示：比做一套增删 UI 轻，
                         // 且与 H5 底层存的就是数组、展示成逗号串一致。
                         TextField("标签（逗号分隔）", text: tagsText)
@@ -55,8 +61,9 @@ struct BagDetailView: View {
                         if !bag.category.isEmpty {
                             LabeledContent("分类", value: bag.category)
                         }
-                        // 材质用 displayMaterial：空值渲染成「—」，与 H5 一致
-                        LabeledContent("材质", value: bag.displayMaterial)
+                        // 上传地点同口径（空值「—」）。编辑态里不可改 ——
+                        // 与 H5 一样，这一项是只读的
+                        LabeledContent("上传地点", value: bag.displayLocation)
                         if !bag.tags.isEmpty {
                             LabeledContent("标签", value: bag.tags.joined(separator: "、"))
                         }

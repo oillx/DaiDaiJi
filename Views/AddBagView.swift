@@ -24,7 +24,6 @@ struct AddBagView: View {
     @State private var photoItem: PhotosPickerItem?
     @State private var name = ""
     @State private var category = ""
-    @State private var material = ""
     /// 已确认的标签（写成 `BagItem.tags`）
     @State private var tags: [String] = []
     /// 标签输入框的草稿（还没按回车/逗号）
@@ -34,6 +33,12 @@ struct AddBagView: View {
 
     /// 当前处于哪一步
     @State private var step: Step
+    /// 表单半窗是否在显示（见 `body` 里的 `.sheet`）
+    @State private var showForm: Bool
+
+    /// 下划线字段的聚焦态 —— 与编辑半窗同一套样式，聚焦时那条线转品牌红
+    @FocusState private var focus: Field?
+    private enum Field: Hashable { case name, category, tags, note }
 
     /// 由「＋」进入：一进来就是拍摄页，且拍摄页的返回＝关闭整页
     private let startsInCamera: Bool
@@ -41,6 +46,8 @@ struct AddBagView: View {
     init(startsInCamera: Bool = false) {
         self.startsInCamera = startsInCamera
         _step = State(initialValue: startsInCamera ? .camera : .form)
+        // 直接从表单进入（非拍照流程）时，半窗一开始就该在
+        _showForm = State(initialValue: !startsInCamera)
     }
 
     /// 已有分类（去重、排序）
@@ -59,120 +66,202 @@ struct AddBagView: View {
             case .camera:
                 CameraView(
                     // 由「＋」直接进来时，返回＝退出整页；否则退回表单
-                    onBack: startsInCamera ? nil : { step = .form },
+                    onBack: startsInCamera ? nil : { step = .form; showForm = true },
                     onImage: { image in
                         rawImage = image
                         step = .form      // 拍/选完自动落到表单
+                        showForm = true
                     }
                 )
                 .transition(.opacity)
 
             case .form:
-                formScreen
-                    .transition(.opacity)
+                // 表单本体在半窗里（见下面的 `.sheet`），这里只铺页面底色当底，
+                // 否则半窗背后露出的是相机那一帧。
+                PageBackground()
             }
         }
         .animation(.easeInOut(duration: 0.22), value: step)
         .onChange(of: rawImage) { _, newImage in process(newImage) }
-    }
-
-    private var formScreen: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    ZStack {
-                        if let img = selectedImage {
-                            Image(uiImage: img)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxHeight: 240)
-                        } else if processing {
-                            ProgressView("处理中…")
-                                .frame(maxWidth: .infinity, minHeight: 120)
-                        } else {
-                            Color.gray.opacity(0.1)
-                                .frame(height: 120)
-                                .overlay(Text("尚未选择图片").foregroundStyle(.secondary))
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-
-                    HStack {
-                        Button("相册") { showPicker = true }
-                        Button("拍照") { step = .camera }
-                    }
-
-                    if !info.isEmpty {
-                        Text(info).font(.caption).foregroundStyle(.secondary)
-                    }
-                }
-
-                Section("信息") {
-                    TextField("纸袋名称", text: $name)
-
-                    TextField("所属分类", text: $category)
-                    if !categorySuggestions.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack {
-                                ForEach(categorySuggestions, id: \.self) { c in
-                                    Button(c) { category = c }
-                                        .buttonStyle(.bordered)
-                                        .font(.caption)
-                                }
-                            }
-                        }
-                    }
-
-                    // 材质：背面「材质」字段。H5 空值渲染成「—」，这里留空即可。
-                    TextField("材质（选填，如「白卡纸覆哑膜」）", text: $material)
-
-                    // 标签：背面标签区 + 搜索匹配。
-                    // H5 是逗号分隔的字符串数组，这里做成「输入 + 回车/逗号成签」，
-                    // 与粘贴逗号串都能用。
-                    VStack(alignment: .leading, spacing: 8) {
-                        TextField("标签（选填，回车或逗号分隔）", text: $tagInput)
-                            .onSubmit { commitTagInput() }
-                            .onChange(of: tagInput) { _, newValue in
-                                // 粘贴一整串「茶饮, 艺术」时也能自动拆签
-                                if newValue.contains(",") || newValue.contains("，") {
-                                    commitTagInput()
-                                }
-                            }
-
-                        if !tags.isEmpty {
-                            // 已添加的标签，点 × 移除
-                            FlowTagRow(tags: tags) { tag in
-                                tags.removeAll { $0 == tag }
-                            }
-                        }
-                    }
-
-                    TextField("详情（选填）", text: $note, axis: .vertical)
-                }
-            }
-            // iPad 上 `Form` 默认铺满整屏，输入框会被拉成一行一千多点，很难读。
-            // 收进 620pt 的列里居中。iPhone 上 393 < 620，这一层是恒等变换。
-            .contentColumn(AppLayout.formMaxWidth)
-            // ⚠️ 兜底色不能省。`Form` 自带的是 grouped 底色（浅灰 #F2F2F7），
-            //    收窄到 620pt 后两侧露出的是导航栈底色（浅色模式下为白），
-            //    于是出现「居中一块浅灰 + 两侧白」的缝。
-            //    这里在整宽上补一层同色，iPad 上就是「整屏浅灰 + 居中表单」。
-            //    iPhone 上 Form 本就铺满，这层被完全盖住，无观感影响。
-            .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
-            .navigationTitle("新增纸袋")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") { save() }
-                        .disabled(selectedImage == nil)
-                }
-            }
-            .photosPicker(isPresented: $showPicker, selection: $photoItem)
-            .onChange(of: photoItem) { _, newItem in loadPhoto(from: newItem) }
+        // 📌 表单走**半窗**（用户要求：复用编辑卡片那套半窗样式）。
+        .sheet(isPresented: $showForm) { formScreen }
+        .onChange(of: showForm) { _, on in
+            // 半窗收起（取消 / 保存 / 下拉）＝ 整个新增流程结束。
+            // ⚠️ 点「拍照」是主动收起并回到相机，那一步已经把 step 设回 .camera，
+            //    所以这里必须再判一次 step，否则会被顺带退出整个流程。
+            if !on && step == .form { dismiss() }
         }
     }
+
+    /// 表单半窗 —— **复用编辑半窗那套样式**
+    /// （下划线字段 `EditFieldRow`/`EditUnderline` + 动作条 `EditActionBar` + 外壳 `editSheetChrome`）。
+    ///
+    /// 📌 与编辑半窗的差异只有三处，都是「新增」这个场景特有的：
+    ///    · 顶部是**可换的照片**（编辑态那里是只读的小图）；
+    ///    · 分类与标签在输入框下面还挂着候选，点一下直接填；
+    ///    · 主要动作是「保存」，且**没选图时禁用**。
+    private var formScreen: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    photoArea
+
+                    EditFieldRow(key: "名称") {
+                        VStack(spacing: 6) {
+                            TextField("给这只袋子起个名字", text: $name)
+                                .focused($focus, equals: .name)
+                                .font(.system(size: 15))
+                                .foregroundStyle(EditPalette.ink)
+                            EditUnderline(focused: focus == .name)
+                        }
+                    }
+
+                    EditFieldRow(key: "所属分类") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            TextField("如「霸王茶姬」", text: $category)
+                                .focused($focus, equals: .category)
+                                .font(.system(size: 15))
+                                .foregroundStyle(EditPalette.ink)
+                            EditUnderline(focused: focus == .category)
+                            if !categorySuggestions.isEmpty {
+                                suggestChips(categorySuggestions) { category = $0 }
+                            }
+                        }
+                    }
+
+                    EditFieldRow(key: "标签", alignment: .top) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            TextField("回车或逗号分隔", text: $tagInput)
+                                .focused($focus, equals: .tags)
+                                .font(.system(size: 15))
+                                .foregroundStyle(EditPalette.ink)
+                                .onSubmit { commitTagInput() }
+                                .onChange(of: tagInput) { _, newValue in
+                                    // 粘贴一整串「茶饮, 艺术」时也能自动拆签
+                                    if newValue.contains(",") || newValue.contains("，") {
+                                        commitTagInput()
+                                    }
+                                }
+                            EditUnderline(focused: focus == .tags)
+                            if !tags.isEmpty {
+                                // 已添加的标签，点 × 移除
+                                FlowTagRow(tags: tags) { tag in
+                                    tags.removeAll { $0 == tag }
+                                }
+                            }
+                        }
+                    }
+
+                    EditFieldRow(key: "详情", alignment: .top) {
+                        VStack(spacing: 6) {
+                            TextField("这只袋子的来历、手感…（选填）", text: $note, axis: .vertical)
+                                .focused($focus, equals: .note)
+                                .font(.system(size: 15))
+                                .foregroundStyle(EditPalette.ink)
+                                .lineLimit(2...4)
+                            EditUnderline(focused: focus == .note)
+                        }
+                    }
+
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, DetailCardMetrics.paddingH)
+                .padding(.top, DetailCardMetrics.paddingTop)
+                .padding(.bottom, 4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .scrollIndicators(.hidden)
+            // 相册选择器挂在半窗内部：选完直接把图交给 `loadPhoto`
+            .photosPicker(isPresented: $showPicker, selection: $photoItem)
+            .onChange(of: photoItem) { _, newItem in loadPhoto(from: newItem) }
+
+            EditActionBar(secondaryTitle: "取消",
+                          onSecondary: { dismiss() },
+                          primaryTitle: "保存",
+                          primaryEnabled: selectedImage != nil,
+                          onPrimary: { save() })
+        }
+        .editSheetChrome()
+    }
+
+    /// 顶部照片区：预览 + 「相册 / 拍照」+ 处理结果提示
+    private var photoArea: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ZStack {
+                if let img = selectedImage {
+                    Image(uiImage: img)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 150)
+                        .clipShape(.rect(cornerRadius: 14))
+                } else if processing {
+                    ProgressView("处理中…")
+                        .frame(maxWidth: .infinity, minHeight: 96)
+                } else {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.black.opacity(0.04))
+                        .frame(height: 96)
+                        .overlay {
+                            Text("尚未选择图片")
+                                .font(.system(size: 11))
+                                .foregroundStyle(HeroPalette.muted)
+                        }
+                }
+            }
+            .frame(maxWidth: .infinity)
+
+            HStack(spacing: 10) {
+                chipButton("相册") { showPicker = true }
+                // 回到相机：先把半窗收起（step 改回 .camera ⇒ 上面那个 onChange 不会退出流程）
+                chipButton("拍照") { step = .camera; showForm = false }
+                if !info.isEmpty {
+                    Text(info)
+                        .font(.system(size: 10.5))
+                        .foregroundStyle(HeroPalette.muted)
+                        .lineLimit(2)
+                }
+                Spacer(minLength: 0)
+            }
+        }
+        .padding(.bottom, 6)
+    }
+
+    /// 小号描边按钮：与底部动作条的「次要」同一套描边，只是收小一号
+    private func chipButton(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(EditPalette.ink)
+                .padding(.horizontal, 14)
+                .frame(minHeight: 32)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color.black.opacity(0.12), lineWidth: 1)
+                }
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// 已有分类的候选：点一下直接填进输入框
+    private func suggestChips(_ items: [String],
+                              onTap: @escaping (String) -> Void) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(items, id: \.self) { c in
+                    Button { onTap(c) } label: {
+                        Text(c)
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(EditPalette.ink)
+                            .padding(.horizontal, 10)
+                            .frame(minHeight: 26)
+                            .background(Color.black.opacity(0.04), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
 
     private func loadPhoto(from item: PhotosPickerItem?) {
         guard let item else { return }
@@ -228,11 +317,27 @@ struct AddBagView: View {
         guard let image = selectedImage, let fileName = ImageStore.save(image) else { return }
         // 输入框里可能还留着没按回车的标签，别丢掉
         commitTagInput()
+
+        let trimmedCategory = category.trimmingCharacters(in: .whitespaces)
+
+        // ── 发号 ──
+        // `NO.xxx` 在上传时定死（存 `serialNumber`），之后删除、拖动排序都不再改它。
+        // 取「现有最大号 + 1」；删号留出的空缺不回收 —— 编号必须稳定。
+        let serial = (existing.map(\.serialNumber).max() ?? 0) + 1
+
+        // ── 展架组内位置 ──
+        // 新袋子插到所属展示架的**最前**（与「最新在前」的旧口径一致）：
+        // 已有组员整体后移一位，给新袋子腾出 1 号位；空组直接占 1。
+        let shelfKey = trimmedCategory.isEmpty ? "未分类" : trimmedCategory
+        let shelfmates = existing.filter { $0.displayShelf == shelfKey }
+        for mate in shelfmates { mate.manualOrder += 1 }
+
         let bag = BagItem(imageFileName: fileName,
                           name: name.trimmingCharacters(in: .whitespaces),
-                          category: category.trimmingCharacters(in: .whitespaces),
-                          material: material.trimmingCharacters(in: .whitespaces),
+                          category: trimmedCategory,
                           tags: tags,
+                          serialNumber: serial,
+                          manualOrder: 1,
                           note: note.trimmingCharacters(in: .whitespaces))
         context.insert(bag)
         dismiss()

@@ -13,13 +13,18 @@ struct DaiDaiJiApp: App {
         //    复刻 H5 时给 `BagItem` 加了 `material` / `tags` / `size`，
         //    其中 `tags: [String]` 是非可选、无默认值的 transformable ——
         //    老库升上来不迁移会直接抛错、App 启动即崩。
+        //    后来对齐详情卡编辑态又补了 `location`（V3）；
+        //    编号改固定、展架支持拖动排序又补了 `serialNumber` / `manualOrder`（V4）；
+        //    「材质」整条文案退役后，`material` 列随 V5 一并删除。
         //    迁移细节见 `Models/BagItemSchema.swift`。
         .modelContainer(Self.container)
     }
 
     /// 全局容器。迁移失败时给出可诊断的崩溃信息，而不是让 `try!` 抛原始错误。
     static let container: ModelContainer = {
-        let schema = Schema(versionedSchema: SchemaV2.self)
+        // ⚠️ 必须始终指向**当前版本**（与 `BagItem` 的 typealias 一致）。
+        //    钉在旧版本会让正式库停在旧 schema、而模型类型是新的，一读就崩。
+        let schema = Schema(versionedSchema: SchemaV5.self)
         let config = ModelConfiguration(schema: schema)
 
         do {

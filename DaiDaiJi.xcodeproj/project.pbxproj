@@ -17,9 +17,6 @@
 		756E47A3301C4C485A1F8556 /* BagDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB44809DEC3708BF12DF8636 /* BagDetailView.swift */; };
 		794212FC1D35D73FAD7F0D3A /* AddBagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CD9705A5B4D1A3C2A7B4749 /* AddBagView.swift */; };
 		A1B2C3D4E5F67890AABBCCDD /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF00112233445566778899 /* SettingsSheet.swift */; };
-		EEFF001122334455667788AA /* AppLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788AB /* AppLayout.swift */; };
-		EEFF001122334455667788AC /* ShakeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788AD /* ShakeDetector.swift */; };
-		EEFF001122334455667788AE /* LayoutGlyph.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788AF /* LayoutGlyph.swift */; };
 		A510A2381288AB4350FD2FF2 /* CameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BE2E8B9FB870120500A81C1 /* CameraController.swift */; };
 		A6070B9CF28E71610AA267AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A790BB479B2477E3A634A1EB /* Assets.xcassets */; };
 		AC2C5329B82EEF6AE775109D /* BagItemSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A318CF65C72F887BA24BF0D /* BagItemSchema.swift */; };
@@ -29,6 +26,13 @@
 		DED7E4566B5C5B75C5192666 /* BagItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2843415D480861D92B6C49C /* BagItem.swift */; };
 		E1DA43250B927A1EB38E2FD6 /* BagImagePipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B3824FCFFE7AEE5B46F93E /* BagImagePipeline.swift */; };
 		E6B1AC1951D07312ABBBC774 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEFABA6DBE0FD3F9E947CCE6 /* CameraView.swift */; };
+		EEFF001122334455667788AA /* AppLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788AB /* AppLayout.swift */; };
+		EEFF001122334455667788AC /* ShakeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788AD /* ShakeDetector.swift */; };
+		EEFF001122334455667788AE /* LayoutGlyph.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788AF /* LayoutGlyph.swift */; };
+		EEFF001122334455667788B0 /* SuggestionMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788B1 /* SuggestionMatcher.swift */; };
+		EEFF001122334455667788B2 /* AppFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788B3 /* AppFont.swift */; };
+		EEFF001122334455667788B4 /* SourceHanSerifCN-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788B5 /* SourceHanSerifCN-Bold.otf */; };
+		EEFF001122334455667788B6 /* SourceHanSerifCN-Heavy.otf in Resources */ = {isa = PBXBuildFile; fileRef = EEFF001122334455667788B7 /* SourceHanSerifCN-Heavy.otf */; };
 		F28D08E42C96548A8A75D396 /* ShelfView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505CA48FD5A0398D40CDEB61 /* ShelfView.swift */; };
 /* End PBXBuildFile section */
 
@@ -55,6 +59,10 @@
 		EEFF001122334455667788AB /* AppLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLayout.swift; sourceTree = "<group>"; };
 		EEFF001122334455667788AD /* ShakeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeDetector.swift; sourceTree = "<group>"; };
 		EEFF001122334455667788AF /* LayoutGlyph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutGlyph.swift; sourceTree = "<group>"; };
+		EEFF001122334455667788B1 /* SuggestionMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionMatcher.swift; sourceTree = "<group>"; };
+		EEFF001122334455667788B3 /* AppFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFont.swift; sourceTree = "<group>"; };
+		EEFF001122334455667788B5 /* SourceHanSerifCN-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceHanSerifCN-Bold.otf"; sourceTree = "<group>"; };
+		EEFF001122334455667788B7 /* SourceHanSerifCN-Heavy.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceHanSerifCN-Heavy.otf"; sourceTree = "<group>"; };
 		FB44809DEC3708BF12DF8636 /* BagDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BagDetailView.swift; sourceTree = "<group>"; };
 		FEFABA6DBE0FD3F9E947CCE6 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -77,6 +85,7 @@
 				F7ED0AE08FBB92027261B793 /* Support */,
 				38DF21AEF4612506D6BE5CBE /* Views */,
 				EBA2FDEBF96250EAF9FEAD4A /* DaiDaiJiApp.swift */,
+				EEFF001122334455667788B8 /* Fonts */,
 				A790BB479B2477E3A634A1EB /* Assets.xcassets */,
 				86024CAD1E83101D97359D73 /* Products */,
 			);
@@ -117,13 +126,24 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		EEFF001122334455667788B8 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				EEFF001122334455667788B5 /* SourceHanSerifCN-Bold.otf */,
+				EEFF001122334455667788B7 /* SourceHanSerifCN-Heavy.otf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 		F7ED0AE08FBB92027261B793 /* Support */ = {
 			isa = PBXGroup;
 			children = (
 				63B3824FCFFE7AEE5B46F93E /* BagImagePipeline.swift */,
 				3BE2E8B9FB870120500A81C1 /* CameraController.swift */,
 				65F76347ACD34FAFF9F373CE /* CategoryMatcher.swift */,
+				EEFF001122334455667788B1 /* SuggestionMatcher.swift */,
 				A50852CFDFCFD50F24D979C1 /* ImageStore.swift */,
+				EEFF001122334455667788B3 /* AppFont.swift */,
 				EEFF001122334455667788AB /* AppLayout.swift */,
 				EEFF001122334455667788AD /* ShakeDetector.swift */,
 				038F8C3FC1FB81801FFB8C73 /* PreviewData.swift */,
@@ -190,6 +210,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EEFF001122334455667788B4 /* SourceHanSerifCN-Bold.otf in Resources */,
+				EEFF001122334455667788B6 /* SourceHanSerifCN-Heavy.otf in Resources */,
 				A6070B9CF28E71610AA267AE /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -223,6 +245,8 @@
 				12C07A737CCE81D7DD0025A3 /* ThumbnailImage.swift in Sources */,
 				A1B2C3D4E5F67890AABBCCDD /* SettingsSheet.swift in Sources */,
 				EEFF001122334455667788AE /* LayoutGlyph.swift in Sources */,
+				EEFF001122334455667788B2 /* AppFont.swift in Sources */,
+				EEFF001122334455667788B0 /* SuggestionMatcher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,21 +260,19 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7BB28L5ZSC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "袋袋集";
 				INFOPLIST_KEY_NSCameraUsageDescription = "需要使用相机拍摄纸袋照片";
-				/* 摇一摇要读设备运动数据。虽然 CMMotionManager 通常不弹权限框，
-				   但隐私敏感 API 缺说明字符串有崩溃风险，且提审时也该有这句 */
 				INFOPLIST_KEY_NSMotionUsageDescription = "需要读取设备运动数据，让挂袋跟随晃动摆动。数据仅在本机使用，不会上传";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要访问相册选择纸袋照片";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				/* 强制浅色外观：整套 UI 是 H5 纸质浅色设计、颜色全部硬编码，
-				   不声明的话深色模式下会变成「自绘页面浅 + 系统控件深」的混合体 */
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -356,6 +378,7 @@
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
 			};
@@ -368,21 +391,19 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7BB28L5ZSC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "袋袋集";
 				INFOPLIST_KEY_NSCameraUsageDescription = "需要使用相机拍摄纸袋照片";
-				/* 摇一摇要读设备运动数据。虽然 CMMotionManager 通常不弹权限框，
-				   但隐私敏感 API 缺说明字符串有崩溃风险，且提审时也该有这句 */
 				INFOPLIST_KEY_NSMotionUsageDescription = "需要读取设备运动数据，让挂袋跟随晃动摆动。数据仅在本机使用，不会上传";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要访问相册选择纸袋照片";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				/* 强制浅色外观：整套 UI 是 H5 纸质浅色设计、颜色全部硬编码，
-				   不声明的话深色模式下会变成「自绘页面浅 + 系统控件深」的混合体 */
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
