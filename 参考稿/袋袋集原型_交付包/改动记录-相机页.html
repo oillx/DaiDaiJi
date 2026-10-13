@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>袋袋集原型 · 相机页改动记录</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:56px 32px 100px;background:#f4f5f8;color:#1d1f24;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;
+  font-size:15px;line-height:1.85;-webkit-font-smoothing:antialiased}
+.wrap{max-width:880px;margin:0 auto;background:#fff;border-radius:20px;
+  padding:48px 56px 64px;box-shadow:0 8px 34px rgba(30,40,70,.09)}
+h1{margin:0 0 8px;font-size:29px;line-height:1.35;letter-spacing:-.5px;
+  padding-bottom:18px;border-bottom:2px solid #141414}
+h2{margin:46px 0 16px;font-size:21px;letter-spacing:-.3px;padding-left:13px;
+  border-left:4px solid #C50405}
+h3{margin:32px 0 12px;font-size:16.5px;color:#141414}
+p{margin:0 0 15px}
+code{background:#f2f3f7;padding:2px 6px;border-radius:5px;font-size:13px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#b4000a}
+pre{background:#1d1f24;border-radius:12px;padding:18px 20px;overflow-x:auto;margin:14px 0 20px}
+pre code{background:none;color:#e6e8ee;padding:0;font-size:12.5px;line-height:1.7}
+ul{margin:0 0 16px;padding-left:22px}
+li{margin:5px 0}
+blockquote{margin:16px 0 20px;padding:13px 20px;background:#fdf6e3;
+  border-left:4px solid #e0a030;border-radius:0 10px 10px 0;color:#5a4a20}
+blockquote p{margin:0;font-size:14px}
+hr{border:0;border-top:1px solid #e4e6ec;margin:40px 0}
+table{width:100%;border-collapse:collapse;margin:16px 0 24px;font-size:13.5px;
+  border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(30,40,70,.07)}
+th{background:#f0f1f5;padding:11px 14px;text-align:left;font-size:12.5px;
+  font-weight:800;color:#5a5f6a;letter-spacing:.2px;border-bottom:1px solid #e2e4ea}
+td{padding:11px 14px;border-bottom:1px solid #eef0f4;vertical-align:top;line-height:1.65}
+tr:last-child td{border-bottom:0}
+tr:nth-child(even) td{background:#fafbfc}
+.ok{color:#1f7a3f;font-weight:700}
+.warn{color:#b4000a;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>袋袋集原型 · 相机页改动记录</h1>
+<blockquote>
+<p>本轮把底部导航的「＋」从「弹出添加收藏弹层」改成「直接拉起全屏相机页」，UI 按设计稿 1:1 还原。</p>
+<p>文件：<code>袋袋集原型.html</code>（单文件，含内嵌 base64 图片，无外部依赖）</p>
+</blockquote>
+<hr>
+
+<h2>一、需求</h2>
+<p>点击导航栏「＋」→ <strong>直接拉起相机页面</strong>，UI 参考设计稿 1:1 还原，图标由设计提供（3 个 SVG）。</p>
+<p>设计稿：<code>Frame 68.png</code>（750×1624）；图标：<code>Frame.svg</code>（闪光灯·黑）、<code>Frame-2.svg</code>（闪光灯·红）、<code>Frame-1.svg</code>（相册）。</p>
+
+<h2>二、尺寸换算</h2>
+<p>设计稿是 <strong>375×812pt @2x</strong>（导出 750×1624）。原型手机壳宽 <strong>430px</strong>，所以：</p>
+<pre><code>原型尺寸 = 设计稿 pt 值 × 1.14667   ( = 430 / 375 )</code></pre>
+<p>关键值：</p>
+<table><thead><tr><th>元素</th><th>设计稿 pt</th><th>原型 px</th><th>说明</th></tr></thead><tbody>
+<tr><td>取景卡左右边距</td><td>17 / 16.5</td><td>20</td><td>壳内左右各留 20</td></tr>
+<tr><td>取景卡高度</td><td>537.5</td><td>616</td><td>= 壳高 920 − 顶栏 126 − 控制条 178</td></tr>
+<tr><td>卡片圆角</td><td>35.5</td><td>41</td><td></td></tr>
+<tr><td>虚线框内缩</td><td>31</td><td>35</td><td>距卡片四边</td></tr>
+<tr><td>虚线线宽 / 节距</td><td>4 / 16.5</td><td>4.6 / 19</td><td>实 19px + 空 19px</td></tr>
+<tr><td>虚线框圆角</td><td>23.5</td><td>27</td><td></td></tr>
+<tr><td>快门直径</td><td>77.5</td><td>89</td><td>外红环 3 + 缝 3 + 红饼 77</td></tr>
+<tr><td>左右圆钮直径</td><td>53</td><td>61</td><td>纯白，无描边</td></tr>
+<tr><td>按钮圆心间距</td><td>114</td><td>131</td><td>flex gap 56</td></tr>
+<tr><td>图标尺寸</td><td>—</td><td>32</td><td>SVG 元素尺寸</td></tr>
+<tr><td>标题字号</td><td>15.4</td><td>17</td><td>无衬线，非首页那套衬线体</td></tr>
+</tbody></table>
+
+<h3>实测对照（浏览器真实渲染）</h3>
+<p>把壳高固定为 920px 后用无头浏览器实测，与设计稿逐项比对：</p>
+<table><thead><tr><th>元素</th><th>设计稿换算</th><th>实际渲染</th><th>误差</th></tr></thead><tbody>
+<tr><td>卡片顶</td><td>126.1</td><td>126.0</td><td class="ok">−0.1</td></tr>
+<tr><td>卡片底</td><td>742.5</td><td>741.5</td><td class="ok">−1.0</td></tr>
+<tr><td>卡片左 / 右</td><td>19.5 / 411.1</td><td>20.0 / 409.5</td><td class="ok">+0.5 / −1.6</td></tr>
+<tr><td>卡片高</td><td>616.3</td><td>615.5</td><td class="ok">−0.8</td></tr>
+<tr><td>虚线框顶</td><td>235.1</td><td>235.0</td><td class="ok">−0.1</td></tr>
+<tr><td>快门 左 / 右</td><td>170.9 / 259.7</td><td>170.5 / 259.0</td><td class="ok">−0.4 / −0.7</td></tr>
+<tr><td>快门直径</td><td>88.9</td><td>88.5</td><td class="ok">−0.4</td></tr>
+<tr><td>左圆钮左缘</td><td>53.9</td><td>53.5</td><td class="ok">−0.4</td></tr>
+<tr><td>纸袋顶部</td><td>339.4</td><td>335.0</td><td class="ok">−4.4</td></tr>
+</tbody></table>
+<blockquote>
+<p>纸袋那 4.4px 来自素材本身的宽高比与设计稿不同（原型复用现有 <code>peets-kraft</code> 素材，不是设计稿里那张）。</p>
+<p>垂直方向另有约 7~10px 的累积差，来源是<strong>壳高</strong>：设计稿 812pt 换算后是 931px，而原型壳高上限是 920px。这是环境差异，不是实现偏差。</p>
+</blockquote>
+
+<h2>三、实现要点</h2>
+
+<h3>1. 层级：z-index 80</h3>
+<p>相机页是全屏覆盖层，夹在既有层级中间：</p>
+<table><thead><tr><th>层</th><th>z-index</th></tr></thead><tbody>
+<tr><td><code>.bottom-nav</code> 底部导航</td><td>30</td></tr>
+<tr><td><strong><code>.camera-screen</code> 相机页</strong></td><td><strong>80</strong></td></tr>
+<tr><td><code>.sheet-backdrop</code> 弹层遮罩</td><td>90</td></tr>
+<tr><td><code>.bottom-sheet</code> 弹层本体</td><td>100</td></tr>
+</tbody></table>
+<p>选 80 是为了让「拍完照 → 填名称/标签」的弹层能正常盖在相机页之上。</p>
+<p>相机页 <code>top: 54px</code> 起步，正好让开原型的 <code>.status-bar</code>，所以状态栏依然可见（与设计稿一致）。</p>
+
+<h3>2. 虚线取景框用 SVG，不用 border dashed</h3>
+<p>设计稿的虚线节距实测是「19px 实 / 19px 空」，<code>border-style: dashed</code> 的 dash 长度由浏览器决定、不可控，所以改用 SVG：</p>
+<pre><code>&lt;svg class="camera-dash" viewBox="0 0 320 363" preserveAspectRatio="none"&gt;
+  &lt;rect x="2.3" y="2.3" width="315.4" height="358.4" rx="24.7"
+        stroke="rgba(255,255,255,.35)" stroke-width="4.6"
+        stroke-dasharray="19 19" /&gt;
+&lt;/svg&gt;</code></pre>
+<p>虚线颜色是反推出来的：设计稿实测虚线像素 <code>rgb(232,212,195)</code>，卡片底色 <code>rgb(219,187,161)</code>，反解得 <code>rgba(255,255,255,0.35)</code>。</p>
+<blockquote>
+<p><strong>顺带一个坑</strong>：SVG 是 replaced element，<code>width/height: auto</code> 时会用<strong>内在尺寸</strong>（由 viewBox 决定），而<strong>不会</strong>被 <code>left/right/top/bottom</code> 拉伸。这里正好利用了这一点 —— 虚线框尺寸被钉死为设计稿值，不随卡片高度变化。</p>
+</blockquote>
+
+<h3>3. 闪光灯两态</h3>
+<p>两枚 SVG 同时放进按钮，靠 <code>aria-pressed</code> 切换显示：</p>
+<pre><code>.camera-ctrl .camera-ctrl__on { display: none; }
+.camera-ctrl[aria-pressed="true"] .camera-ctrl__off { display: none; }
+.camera-ctrl[aria-pressed="true"] .camera-ctrl__on  { display: block; }</code></pre>
+<blockquote>
+<p><span class="warn">踩过的坑</span>：第一版写的是 <code>.camera-ctrl__on { display:none }</code>，结果两枚图标同时显示 —— 被上面的 <code>.camera-ctrl svg { display:block }</code>（特异性 0,1,1）压过了。选择器必须带上 <code>.camera-ctrl</code> 前缀，把特异性提到 0,2,0。</p>
+</blockquote>
+
+<h3>4. 与「添加收藏」的衔接</h3>
+<p>「＋」不再直接开弹层。现在链路是：</p>
+<pre><code>＋  →  相机页  →  快门 / 相册选图  →  画面停留 420ms
+   →  关闭相机页，直接进入「添加收藏」第 2 步（填名称 / 展示架 / 标签）</code></pre>
+<ul>
+<li>快门按钮驱动 <code>&lt;input capture="environment"&gt;</code>，手机上会直接开后置摄像头；相册按钮驱动普通 <code>&lt;input type="file"&gt;</code></li>
+<li>两个 input 都<strong>不用 <code>hidden</code></strong>，改用 <code>opacity:0</code> 的 1px 元素 —— 部分浏览器会拦掉 <code>display:none</code> 元素的 <code>.click()</code></li>
+<li>取景框初始画面复用现有素材（<code>peets-kraft</code>），模拟「已经对准的纸袋」，与设计稿一致（不是空框）</li>
+<li>打开相机页时给 <code>#appScroll</code> 加 <code>overflow:hidden</code>，防止底层列表被穿透滚动；关闭时还原</li>
+</ul>
+
+<h2>四、验证</h2>
+<h3>交互链路（14 项，全部通过）</h3>
+<table><thead><tr><th>#</th><th>检查项</th><th>结果</th></tr></thead><tbody>
+<tr><td>1</td><td>初始相机页关闭</td><td class="ok">✅</td></tr>
+<tr><td>2</td><td>点「＋」→ 相机页打开</td><td class="ok">✅</td></tr>
+<tr><td>3</td><td>底层滚动被锁（<code>overflow:hidden</code>）</td><td class="ok">✅</td></tr>
+<tr><td>4</td><td><code>aria-hidden</code> 同步为 false</td><td class="ok">✅</td></tr>
+<tr><td>5–6</td><td>闪光灯点击后 <code>aria-pressed</code> false → true</td><td class="ok">✅</td></tr>
+<tr><td>7–8</td><td>取景框纸袋可见、素材已加载</td><td class="ok">✅</td></tr>
+<tr><td>9–11</td><td>快门 / 相册 / 拍照三个 input 均存在</td><td class="ok">✅</td></tr>
+<tr><td>12</td><td>点「返回」→ 相机页关闭</td><td class="ok">✅</td></tr>
+<tr><td>13</td><td>底层滚动样式已还原</td><td class="ok">✅</td></tr>
+<tr><td>14</td><td>JS 报错数</td><td class="ok">0 条</td></tr>
+</tbody></table>
+
+<h3>尺寸比对</h3>
+<p>见上文「实测对照」表 —— 主要元素误差均在 <strong>1.6px 以内</strong>。</p>
+
+<h2>五、涉及位置</h2>
+<table><thead><tr><th>位置</th><th>内容</th></tr></thead><tbody>
+<tr><td>CSS（<code>&lt;/style&gt;</code> 前）</td><td>新增 <code>.camera-screen</code> 一族样式，约 200 行</td></tr>
+<tr><td>HTML（<code>&lt;/main&gt;</code> 前，<code>&lt;nav&gt;</code> 之后）</td><td>新增 <code>#cameraScreen</code> 相机页结构 + 三枚设计图标</td></tr>
+<tr><td>JS（原 <code>#addButton</code> 处）</td><td>改用 <code>openCamera() / closeCamera()</code>，新增 <code>handleCameraFile()</code> 与取景框初始画面注入</td></tr>
+</tbody></table>
+
+<h3>改动前文件</h3>
+<p>原文件已备份为 <code>袋袋集原型.html.bak</code>，可随时回滚。</p>
+
+<hr>
+<p><em>文档生成时间：本轮改动完成后</em></p>
+</div>
+</body>
+</html>

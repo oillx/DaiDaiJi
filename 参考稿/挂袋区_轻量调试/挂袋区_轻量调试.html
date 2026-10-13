@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>挂袋区 · 轻量调试</title>
+<style>
+/* ═══════════════════════════════════════════════════════
+   挂袋区专用轻量调试页（无 base64 图片，纯 CSS 纸袋）
+   本轮两处改动：
+   ① 卡片去磨砂背景 → 不锈钢拉丝板卡框 + 四角小螺纹
+      （螺纹款式 = 全部收藏页展架两端的金属螺钉，12px → 8px）
+   ② 滑轮去掉顶部吊耳挂钩，轮心直接压在钢索中心线上，
+      摆动 = 轮体绕自身轮心转，像沿索滑动
+   调参入口：JS 顶部 RACK_* 常量 + CSS 顶部 --rack-card-w/--rack-overlap
+   ═══════════════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;
+  padding:34px 16px 60px;background:#F1EEE8;color:#1d1f24;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif}
+h1{font-size:15px;letter-spacing:.5px;color:#4a4136;font-weight:700}
+.sub{font-size:11px;color:#8d8272;margin-top:-8px}
+
+/* ── 手机壳：与原型一致（外宽 430 含 9px 边框 → 内容 412）── */
+.phone{width:min(100%,430px);border:9px solid #1a1a1c;border-radius:54px;
+  background:#EDE9E0;overflow:hidden;box-shadow:0 24px 60px rgba(50,42,30,.25)}
+.status{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 26px 4px;font-size:13px;font-weight:700;color:#1d1f24}
+.status .pill{width:104px;height:26px;border-radius:14px;background:#1a1a1c}
+.status .ico{letter-spacing:2px;font-size:11px}
+.head{display:flex;align-items:baseline;justify-content:space-between;padding:10px 22px 0}
+.head h2{font-size:22px;letter-spacing:-.3px;color:#141414}
+.head span{font-size:11px;color:#8d8272}
+
+/* ── 挂袋舞台 ── */
+.rack-stage{position:relative;padding:0 0 8px;overflow:visible}
+/* 通铺冷银钢索：bags 顶部留白 60px，索心 = 卡框顶(--dy=0)上方 44.02px
+   → 索心距 bags 顶 60−44.02 = 15.98px，索体 top = 15.98−1.1−6 = 8.88px */
+.rack-cable{position:absolute;top:8.88px;left:0;right:0;height:14px;z-index:0;pointer-events:none}
+.rack-cable .bar{position:absolute;top:6px;left:0;right:0;height:2.2px;border-radius:2px;
+  background:linear-gradient(180deg,#D3DAE1,#98A1AA 55%,#6E7680);box-shadow:0 1px 2px rgba(40,48,58,.32)}
+.rack-cable .ferrule{position:absolute;top:1px;width:5px;height:12px;border-radius:2.5px;
+  background:linear-gradient(180deg,#C5CDD4,#7C858E);box-shadow:0 1px 2px rgba(40,48,58,.30)}
+
+.rack-bags{display:flex;align-items:flex-start;gap:0;overflow:visible;
+  padding:60px 12px 12px;position:relative;z-index:1;touch-action:pan-x;
+  --rack-card-w:106.00px;--rack-overlap:12px;--rack-lift:4px}
+.rack-item{flex:0 0 auto;width:var(--rack-card-w);cursor:pointer;text-align:center;
+  position:relative;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;touch-action:none}
+.rack-item + .rack-item{margin-left:calc(-1 * var(--rack-overlap))} /* 轻叠：后压前 */
+.rack-item.is-active{z-index:3}
+
+/* 摆动层：轮心即旋转轴（卡框顶上方 44.02px = 索心），摆动时轮心沿索不动 */
+.rack-item .swing{position:relative;z-index:2;display:flow-root;
+  transform-origin:50% -44.02px;will-change:transform;
+  --dy:calc(var(--dy-base,0px) - var(--lift,0px))}
+.rack-item.is-active .swing{--lift:var(--rack-lift)}
+
+/* 滑轮：纯轮体（无吊耳挂钩），盒 21.496 见方，轮心 = 盒中心 = 索心
+   → 盒 top = −44.02 − 21.496/2 = −54.77px */
+.rack-clip{position:absolute;top:-54.77px;left:50%;transform:translateX(-50%);z-index:3}
+.rack-clip .pulley{display:block;overflow:visible}
+/* 吊线：从轮心垂到夹具顶，上半段藏在轮体后面 */
+.rack-wire{position:absolute;top:-44.02px;left:50%;margin-left:-0.8px;width:1.6px;
+  height:calc(36.52px + var(--dy,0px));border-radius:1px;z-index:2;
+  background:linear-gradient(90deg,#B9C1C9,#EEF2F5 42%,#A7B0B8);
+  transition:height .28s cubic-bezier(.2,.8,.25,1)}
+
+/* 不锈钢夹具（不变）：咬住卡顶 7.5px */
+.grip{position:absolute;top:calc(-7.50px + var(--dy,0px));left:50%;margin-left:-5.8px;z-index:6;
+  width:11.6px;height:15px;border-radius:3px 3px 2.4px 2.4px;
+  background:linear-gradient(180deg,#FBFCFD 0%,#E6ECF1 28%,#C6CFD7 64%,#A5AFB9 100%);
+  box-shadow:0 1.2px 3px rgba(46,56,66,.30),inset 0 1px 0 rgba(255,255,255,.95),
+             inset -0.7px 0 0 rgba(120,132,144,.38),inset 0.7px 0 0 rgba(255,255,255,.6);
+  transition:top .28s cubic-bezier(.2,.8,.25,1)}
+.grip::before{content:"";position:absolute;left:1.4px;right:1.4px;top:5.6px;height:1px;
+  border-radius:1px;background:rgba(112,124,136,.5)}
+.grip::after{content:"";position:absolute;left:50%;top:2.0px;margin-left:-1.4px;
+  width:2.8px;height:1.9px;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#FDFEFE,#AEB8C2 62%,#87919B);
+  box-shadow:0 0.5px 1px rgba(46,56,66,.5)}
+.grip .mouth{position:absolute;left:1.4px;right:1.4px;bottom:3.4px;height:1.9px;border-radius:1px;
+  background:linear-gradient(180deg,rgba(120,132,144,.65),rgba(72,84,96,.85))}
+
+/* ── 卡框：不锈钢拉丝板（磨砂玻璃背景已去掉）──
+   钢板只露 5px 内边环（照片盖住中芯），加受光/沉边两道内阴影 */
+.rack-frame{position:relative;margin-top:var(--dy,0);transition:margin-top .28s cubic-bezier(.2,.8,.25,1);
+  border:1px solid rgba(92,102,114,.55);border-radius:4px;padding:5px;
+  background:linear-gradient(160deg,#EAF0F4 0%,#C3CCD5 20%,#8E98A2 52%,#AEB8C2 78%,#D9E0E6 100%);
+  box-shadow:0 3px 10px rgba(40,48,58,.16),
+             inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(20,26,34,.22)}
+/* 四角螺纹：款式 = 展架金属螺钉（conic 拉丝环 + 左上高光 + 沉孔阴影），12px → 8px */
+.rack-screw{position:absolute;width:8px;height:8px;border-radius:50%;z-index:5;
+  background:
+    radial-gradient(circle at 34% 26%, rgba(255,255,255,.95) 0 12%, rgba(255,255,255,0) 34%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,.9) 0 8%, rgba(255,255,255,0) 30%),
+    conic-gradient(from 210deg, #f2efe9, #b8b1a6 25%, #8d857a 50%, #cfc8bd 75%, #f2efe9 100%);
+  box-shadow:0 1px 2px rgba(0,0,0,.40),0 1px 3px rgba(0,0,0,.18),
+    inset 0 0 0 .5px rgba(255,255,255,.60),inset 0 -0.5px 1px rgba(0,0,0,.30)}
+.rack-screw.tl{top:3px;left:3px}
+.rack-screw.tr{top:3px;right:3px}
+.rack-screw.bl{bottom:3px;left:3px}
+.rack-screw.br{bottom:3px;right:3px}
+
+.rack-photo{position:relative;height:calc(var(--rack-card-w)*1.29);border-radius:2px;overflow:hidden;
+  display:flex;align-items:center;justify-content:flex-start;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(0,0,0,.10)),var(--bag-pattern,none),var(--bag-color,#e7ddcf)}
+.rack-photo .paper-bag{width:calc(var(--rack-card-w)*.84);height:auto;aspect-ratio:92/132;
+  max-width:100%;max-height:100%;margin-right:auto}
+.rack-meta{padding:calc(var(--rack-card-w)*.064) 3px 0;text-align:left}
+.rack-meta strong{display:block;overflow:hidden;font-family:Georgia,serif;
+  font-size:calc(var(--rack-card-w)*.118);text-overflow:ellipsis;white-space:nowrap;color:#4a3a22}
+.rack-meta small{display:block;margin-top:2px;color:#a09274;font-size:calc(var(--rack-card-w)*.082)}
+
+/* 选中态：钢板不变，金环 + 金晕 + 金标题 */
+.rack-item.is-active .rack-frame{box-shadow:0 0 0 1.5px #c8891f,0 6px 16px rgba(160,110,20,.26),
+  inset 0 1px 0 rgba(255,255,255,.6)}
+.rack-item.is-active .rack-meta strong{color:#8a5a10}
+.rack-item.is-active .rack-clip{filter:drop-shadow(0 0 5px rgba(240,154,42,.65))}
+
+.rack-hint{margin:8px 20px 0;font-size:10px;text-align:center;color:#8d8272;opacity:.85}
+
+/* ── 纯 CSS 纸袋（替代 base64 图片）── */
+.paper-bag{--bag-color:#d8aa7c;--bag-text:#23180f;--bag-pattern:linear-gradient(transparent,transparent);
+  position:relative;flex:0 0 auto;color:var(--bag-text);filter:drop-shadow(0 4px 10px rgba(0,0,0,.18))}
+.paper-bag::after{content:"";position:absolute;z-index:0;inset:20px 0 0;
+  background:linear-gradient(90deg,rgba(0,0,0,.09),transparent 8%,transparent 91%,rgba(255,255,255,.16)),var(--bag-pattern),var(--bag-color);
+  clip-path:polygon(3% 4%,96% 0,100% 97%,2% 100%)}
+.paper-bag::before{content:"";position:absolute;z-index:1;inset:29px 8px 8px;
+  border:1px solid color-mix(in srgb,var(--bag-text) 35%,transparent)}
+.bag-handle{position:absolute;z-index:0;width:45%;height:38px;top:0;left:27%;
+  border:4px solid color-mix(in srgb,var(--bag-color) 68%,#15120f);border-bottom:0;border-radius:50% 50% 0 0}
+.bag-copy{position:absolute;z-index:2;top:56%;left:50%;width:76%;transform:translate(-50%,-50%);
+  font-family:Arial,sans-serif;font-size:8px;line-height:1.25;letter-spacing:.8px;text-align:center}
+.bag-copy b{font-size:12px}
+.bag-seal{position:absolute;z-index:2;bottom:12px;right:12px;width:20px;height:20px;
+  border:1px solid currentColor;border-radius:50%;display:grid;place-items:center;font-size:7px}
+.bag-vermillion{--bag-color:#a22d2c;--bag-text:#fbe9df;--bag-pattern:linear-gradient(160deg,rgba(255,224,196,.14) 0%,transparent 45%),repeating-linear-gradient(37deg,rgba(255,224,196,.08) 0 1px,transparent 1px 19px)}
+.bag-kraft{--bag-color:#bd8958;--bag-text:#2d1c11;--bag-pattern:repeating-linear-gradient(105deg,transparent 0 14px,rgba(255,255,255,.07) 15px 16px)}
+.bag-blue{--bag-color:#1e5c90;--bag-text:#f3ecda;--bag-pattern:repeating-linear-gradient(60deg,rgba(255,255,255,.16) 0 1.4px,transparent 1.4px 13px)}
+.bag-black{--bag-color:#242323;--bag-text:#f0e8dc;--bag-pattern:linear-gradient(145deg,transparent 0 54%,rgba(255,255,255,.12) 54% 56%,transparent 56%)}
+
+/* 参数速览条 */
+.stats{display:flex;gap:18px;font-size:11px;color:#6d6355}
+.stats b{color:#141414}
+</style>
+</head>
+<body>
+<h1>挂袋区 · 轻量调试</h1>
+<p class="sub">① 去磨砂背景 → 不锈钢板卡框 + 四角小螺纹（展架螺钉同款 · 12→8px）　② 滑轮去挂钩，轮心压索心、沿索滑动</p>
+<div class="stats">
+  <span>卡宽 <b>106.00px</b></span><span>重叠 <b>12px</b></span><span>微倾 <b>−2°/+1.7°</b></span>
+  <span>垂距 <b>0/7/14/7</b></span><span>轮心 = 索心 <b>44.02px</b></span><span>咬口 <b>7.5px</b></span>
+</div>
+
+<div class="phone">
+  <div class="status"><span>9:41</span><span class="pill"></span><span class="ico">▮▮▮</span></div>
+  <div class="head"><h2>最近收集</h2><span>最近 15 天 · 4 件</span></div>
+
+  <section class="rack-stage">
+    <div class="rack-bags" id="rackBags">
+      <div class="rack-cable" aria-hidden="true"><span class="bar"></span><span class="ferrule" style="left:-2px"></span><span class="ferrule" style="right:-2px"></span></div>
+
+      <div class="rack-item is-active" data-i="0">
+        <div class="swing" style="--dy-base:0px">
+          <div class="rack-clip">
+            <svg class="pulley" viewBox="0 0 19.541 19.541" width="21.496" height="21.496" aria-hidden="true" focusable="false" overflow="visible">
+              <defs>
+                <linearGradient id="wpv10" x1="24%" y1="6%" x2="78%" y2="96%">
+                  <stop offset="0%" stop-color="#FCFDFE"/><stop offset="26%" stop-color="#EEF3F7"/>
+                  <stop offset="58%" stop-color="#D8E0E7"/><stop offset="82%" stop-color="#BAC3CC"/>
+                  <stop offset="100%" stop-color="#9DA7B1"/>
+                </linearGradient>
+                <linearGradient id="hpv10" x1="22%" y1="10%" x2="80%" y2="92%">
+                  <stop offset="0%" stop-color="#C6CFD7"/><stop offset="48%" stop-color="#9AA4AE"/>
+                  <stop offset="100%" stop-color="#79838D"/>
+                </linearGradient>
+              </defs>
+              <circle cx="9.771" cy="9.771" r="5.802" fill="none" stroke="url(#wpv10)" stroke-width="7.205"/>
+              <circle cx="9.771" cy="9.771" r="2.2" fill="none" stroke="url(#hpv10)" stroke-width="0.8"/>
+              <circle cx="9.771" cy="9.771" r="8.905" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="0.5"/>
+              <circle cx="9.771" cy="9.771" r="9.325" fill="none" stroke="rgba(88,100,112,.32)" stroke-width="0.45"/>
+            </svg>
+          </div>
+          <div class="rack-wire"></div>
+          <div class="grip"><span class="mouth"></span></div>
+          <div class="rack-frame">
+            <i class="rack-screw tl"></i><i class="rack-screw tr"></i><i class="rack-screw bl"></i><i class="rack-screw br"></i>
+            <div class="rack-photo bag-vermillion"><div class="paper-bag bag-vermillion"><span class="bag-handle"></span><span class="bag-copy">PRIVATE<b>OBJECT</b>ARCHIVE</span><span class="bag-seal">01</span></div></div>
+          </div>
+          <div class="rack-meta"><strong>山水风景手提袋</strong><small>西湖文创 &middot; 09-14</small></div>
+        </div>
+      </div>
+
+      <div class="rack-item" data-i="1">
+        <div class="swing" style="--dy-base:7px">
+          <div class="rack-clip">
+            <svg class="pulley" viewBox="0 0 19.541 19.541" width="21.496" height="21.496" aria-hidden="true" focusable="false" overflow="visible">
+              <defs>
+                <linearGradient id="wpv10b" x1="24%" y1="6%" x2="78%" y2="96%">
+                  <stop offset="0%" stop-color="#FCFDFE"/><stop offset="26%" stop-color="#EEF3F7"/>
+                  <stop offset="58%" stop-color="#D8E0E7"/><stop offset="82%" stop-color="#BAC3CC"/>
+                  <stop offset="100%" stop-color="#9DA7B1"/>
+                </linearGradient>
+                <linearGradient id="hpv10b" x1="22%" y1="10%" x2="80%" y2="92%">
+                  <stop offset="0%" stop-color="#C6CFD7"/><stop offset="48%" stop-color="#9AA4AE"/>
+                  <stop offset="100%" stop-color="#79838D"/>
+                </linearGradient>
+              </defs>
+              <circle cx="9.771" cy="9.771" r="5.802" fill="none" stroke="url(#wpv10b)" stroke-width="7.205"/>
+              <circle cx="9.771" cy="9.771" r="2.2" fill="none" stroke="url(#hpv10b)" stroke-width="0.8"/>
+              <circle cx="9.771" cy="9.771" r="8.905" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="0.5"/>
+              <circle cx="9.771" cy="9.771" r="9.325" fill="none" stroke="rgba(88,100,112,.32)" stroke-width="0.45"/>
+            </svg>
+          </div>
+          <div class="rack-wire"></div>
+          <div class="grip"><span class="mouth"></span></div>
+          <div class="rack-frame">
+            <i class="rack-screw tl"></i><i class="rack-screw tr"></i><i class="rack-screw bl"></i><i class="rack-screw br"></i>
+            <div class="rack-photo bag-kraft"><div class="paper-bag bag-kraft"><span class="bag-handle"></span><span class="bag-copy">PRIVATE<b>OBJECT</b>ARCHIVE</span><span class="bag-seal">02</span></div></div>
+          </div>
+          <div class="rack-meta"><strong>柠檬绿叶手提袋</strong><small>柠檬茶 &middot; 09-12</small></div>
+        </div>
+      </div>
+
+      <div class="rack-item" data-i="2">
+        <div class="swing" style="--dy-base:14px">
+          <div class="rack-clip">
+            <svg class="pulley" viewBox="0 0 19.541 19.541" width="21.496" height="21.496" aria-hidden="true" focusable="false" overflow="visible">
+              <defs>
+                <linearGradient id="wpv10c" x1="24%" y1="6%" x2="78%" y2="96%">
+                  <stop offset="0%" stop-color="#FCFDFE"/><stop offset="26%" stop-color="#EEF3F7"/>
+                  <stop offset="58%" stop-color="#D8E0E7"/><stop offset="82%" stop-color="#BAC3CC"/>
+                  <stop offset="100%" stop-color="#9DA7B1"/>
+                </linearGradient>
+                <linearGradient id="hpv10c" x1="22%" y1="10%" x2="80%" y2="92%">
+                  <stop offset="0%" stop-color="#C6CFD7"/><stop offset="48%" stop-color="#9AA4AE"/>
+                  <stop offset="100%" stop-color="#79838D"/>
+                </linearGradient>
+              </defs>
+              <circle cx="9.771" cy="9.771" r="5.802" fill="none" stroke="url(#wpv10c)" stroke-width="7.205"/>
+              <circle cx="9.771" cy="9.771" r="2.2" fill="none" stroke="url(#hpv10c)" stroke-width="0.8"/>
+              <circle cx="9.771" cy="9.771" r="8.905" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="0.5"/>
+              <circle cx="9.771" cy="9.771" r="9.325" fill="none" stroke="rgba(88,100,112,.32)" stroke-width="0.45"/>
+            </svg>
+          </div>
+          <div class="rack-wire"></div>
+          <div class="grip"><span class="mouth"></span></div>
+          <div class="rack-frame">
+            <i class="rack-screw tl"></i><i class="rack-screw tr"></i><i class="rack-screw bl"></i><i class="rack-screw br"></i>
+            <div class="rack-photo bag-blue"><div class="paper-bag bag-blue"><span class="bag-handle"></span><span class="bag-copy">PRIVATE<b>OBJECT</b>ARCHIVE</span><span class="bag-seal">03</span></div></div>
+          </div>
+          <div class="rack-meta"><strong>青花杏花手提袋</strong><small>江南布衣 &middot; 09-10</small></div>
+        </div>
+      </div>
+
+      <div class="rack-item" data-i="3">
+        <div class="swing" style="--dy-base:7px">
+          <div class="rack-clip">
+            <svg class="pulley" viewBox="0 0 19.541 19.541" width="21.496" height="21.496" aria-hidden="true" focusable="false" overflow="visible">
+              <defs>
+                <linearGradient id="wpv10d" x1="24%" y1="6%" x2="78%" y2="96%">
+                  <stop offset="0%" stop-color="#FCFDFE"/><stop offset="26%" stop-color="#EEF3F7"/>
+                  <stop offset="58%" stop-color="#D8E0E7"/><stop offset="82%" stop-color="#BAC3CC"/>
+                  <stop offset="100%" stop-color="#9DA7B1"/>
+                </linearGradient>
+                <linearGradient id="hpv10d" x1="22%" y1="10%" x2="80%" y2="92%">
+                  <stop offset="0%" stop-color="#C6CFD7"/><stop offset="48%" stop-color="#9AA4AE"/>
+                  <stop offset="100%" stop-color="#79838D"/>
+                </linearGradient>
+              </defs>
+              <circle cx="9.771" cy="9.771" r="5.802" fill="none" stroke="url(#wpv10d)" stroke-width="7.205"/>
+              <circle cx="9.771" cy="9.771" r="2.2" fill="none" stroke="url(#hpv10d)" stroke-width="0.8"/>
+              <circle cx="9.771" cy="9.771" r="8.905" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="0.5"/>
+              <circle cx="9.771" cy="9.771" r="9.325" fill="none" stroke="rgba(88,100,112,.32)" stroke-width="0.45"/>
+            </svg>
+          </div>
+          <div class="rack-wire"></div>
+          <div class="grip"><span class="mouth"></span></div>
+          <div class="rack-frame">
+            <i class="rack-screw tl"></i><i class="rack-screw tr"></i><i class="rack-screw bl"></i><i class="rack-screw br"></i>
+            <div class="rack-photo bag-black"><div class="paper-bag bag-black"><span class="bag-handle"></span><span class="bag-copy">PRIVATE<b>OBJECT</b>ARCHIVE</span><span class="bag-seal">04</span></div></div>
+          </div>
+          <div class="rack-meta"><strong>ALL IN 拥抱手提袋</strong><small>ALL IN &middot; 09-05</small></div>
+        </div>
+      </div>
+
+    </div>
+    <p class="rack-hint">&#8672; 按住卡片左右拨动 &middot; 轻点切换选中 &#8674;</p>
+  </section>
+</div>
+
+<script>
+// ═══ 摆动物理（与原型一致，参数集中在这里）═══
+const RACK_TILTS = [-2.0, 1.7, -1.7, 2.0];   // 静止微倾（deg）
+const RACK_PAGE = 4;
+
+const states = [...document.querySelectorAll('.rack-item')].map((el, i) => {
+  const swing = el.querySelector('.swing');
+  const st = { el: swing, base: RACK_TILTS[i % RACK_TILTS.length], angle: 0, velocity: 0, dragging: false };
+  swing.style.transform = `rotate(${st.base.toFixed(2)}deg)`;
+
+  let startX = 0, startT = 0, moved = false;
+  el.addEventListener('pointerdown', e => {
+    startX = e.clientX; startT = Date.now(); moved = false;
+    st.dragging = true; st.velocity = 0;
+    try { el.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  el.addEventListener('pointermove', e => {
+    if (!st.dragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 6) moved = true;
+    st.angle = Math.max(-75, Math.min(75, dx * 0.4));
+    st.el.style.transform = `rotate(${(st.base + st.angle).toFixed(2)}deg)`;
+  });
+  el.addEventListener('pointerup', () => {
+    if (!st.dragging) return;
+    st.dragging = false;
+    if (!moved && Date.now() - startT < 400) {
+      st.angle = 0;
+      st.el.style.transform = `rotate(${st.base.toFixed(2)}deg)`;
+      st.velocity += 7;
+      kick();
+      const me = Number(el.dataset.i);
+      document.querySelectorAll('.rack-item').forEach(n =>
+        n.classList.toggle('is-active', Number(n.dataset.i) === me));
+    } else {
+      st.angle = Math.max(-26, Math.min(26, st.angle * 0.3));
+      st.velocity = -st.angle * 0.35;
+      kick();
+    }
+  });
+  el.addEventListener('pointercancel', () => {
+    if (!st.dragging) return;
+    st.dragging = false;
+    st.angle = Math.max(-26, Math.min(26, st.angle * 0.3));
+    st.velocity = -st.angle * 0.35;
+    kick();
+  });
+  return st;
+});
+
+let handle = null;
+function tick() {
+  let moving = false;
+  states.forEach(st => {
+    if (st.dragging) return;
+    if (Math.abs(st.velocity) > 0.02 || Math.abs(st.angle) > 0.05) {
+      st.velocity += -st.angle * 0.018;
+      st.velocity *= 0.952;
+      st.angle += st.velocity;
+      if (st.angle > 26) { st.angle = 26; st.velocity *= -0.45; }
+      if (st.angle < -26) { st.angle = -26; st.velocity *= -0.45; }
+      st.el.style.transform = `rotate(${(st.base + st.angle).toFixed(2)}deg)`;
+      moving = true;
+    } else if (st.angle !== 0 || st.velocity !== 0) {
+      st.angle = 0; st.velocity = 0;
+      st.el.style.transform = `rotate(${st.base.toFixed(2)}deg)`;
+    }
+  });
+  handle = moving ? requestAnimationFrame(tick) : null;
+}
+function kick() { if (handle == null) handle = requestAnimationFrame(tick); }
+kick();
+</script>
+</body>
+</html>
